@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Package, Truck, Layers, Info, Trash2, Box, BarChart3, Play, Pause, SkipForward, SkipBack, CheckSquare, Upload, ArrowRight, CheckCircle2, Circle } from 'lucide-react';
+import { Package, Truck, Layers, Info, Trash2, Box, BarChart3, Play, Pause, SkipForward, SkipBack, CheckSquare, Upload, ArrowRight, CheckCircle2, Circle, Home } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { api } from './api';
 import Scene3D from './components/Scene3D';
@@ -288,6 +288,9 @@ function App() {
           <h1 style={{ marginBottom: 0, fontSize: '1.2rem', marginRight: '2rem' }}>Diginova BinPacker</h1>
         </div>
         <div className="nav-buttons">
+          <a href="/anasayfa/index.html" className="nav-btn" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
+            <Home size={18} /> Anasayfa
+          </a>
           <button className={`nav-btn ${view === 'input' ? 'active' : ''}`} onClick={() => setView('input')}>1. Veri Girişi</button>
           <button className={`nav-btn ${view === 'optimization' ? 'active' : ''}`} disabled={!packResult} onClick={() => setView('optimization')}>2. Optimizasyon Sonucu</button>
           <button className={`nav-btn ${view === 'operator' ? 'active' : ''}`} disabled={!packResult} onClick={() => setView('operator')}>3. Operatör Ekranı</button>

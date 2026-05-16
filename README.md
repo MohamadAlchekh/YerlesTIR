@@ -1,16 +1,41 @@
-# React + Vite
+# LoadMind - Konteyner Yükleme Optimizasyonu
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Bu proje, ürünlerin konteynerlere en verimli şekilde yerleştirilmesini hesaplayan ve 3D olarak görselleştiren bir sistemdir.
 
-Currently, two official plugins are available:
+## Proje Yapısı
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Proje iki ana bölümden oluşmaktadır:
 
-## React Compiler
+### 1. Backend (`/backend`)
+FastAPI tabanlı optimizasyon motoru. Guillotine algoritması kullanarak ürünlerin koordinatlarını hesaplar.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+**Çalıştırma:**
+```bash
+cd backend
+python -m venv venv
+.\venv\Scripts\activate  # Windows
+pip install -r requirements.txt
+uvicorn main:app --reload
+```
 
-## Expanding the ESLint configuration
+### 2. Frontend (`/frontend`)
+React + Three.js tabanlı görselleştirme ve yönetim arayüzü.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+**Çalıştırma:**
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+## Temel Özellikler
+- **Guillotine Algoritması:** Yer boşluklarını verimli kullanan özel uzay-parçalama mantığı.
+- **3D Görselleştirme:** Three.js ile adım adım yükleme animasyonu.
+- **Operatör Ekranı:** Depo personeli için kontrol listesi ve adım adım talimatlar.
+- **PDF İrsaliye:** Oluşturulan planın PDF olarak indirilmesi.
+
+## Dosya Düzeni
+- `/backend/main.py`: FastAPI API uç noktaları.
+- `/backend/optimizer.py`: Optimizasyon algoritması.
+- `/frontend/src/App.jsx`: Ana uygulama mantığı.
+- `/frontend/src/components/Scene3D.jsx`: 3D render motoru.
