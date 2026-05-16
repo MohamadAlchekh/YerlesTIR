@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CargoVision AI | Industry 4.0 Platformu</title>
+  <meta
+    name="description"
+    content="Konteyner yerleşimini 3D Bin Packing algoritmasıyla optimize edin; canlı simülasyon ve dijital checklist ile sahada hatasız uygulayın."
+  >
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="script.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="overflow-x-hidden font-sans antialiased selection:bg-blue-500/25 selection:text-white">
+  <div class="fixed inset-0 -z-30 bg-canvas"></div>
+  <div class="noise-layer fixed inset-0 -z-20"></div>
+  <div class="grid-layer fixed inset-0 -z-20"></div>
+  <div id="spotlight" class="spotlight pointer-events-none fixed inset-0 -z-10 opacity-100"></div>
+  <div id="orbOne" class="orb pointer-events-none fixed left-[-10rem] top-[-8rem] -z-10 h-[32rem] w-[32rem] rounded-full bg-blue-500/16 blur-3xl"></div>
+  <div id="orbTwo" class="orb pointer-events-none fixed right-[-8rem] top-[10rem] -z-10 h-[30rem] w-[30rem] rounded-full bg-orange-500/12 blur-3xl"></div>
+  <div id="orbThree" class="orb pointer-events-none fixed left-[34%] top-[42rem] -z-10 h-[24rem] w-[24rem] rounded-full bg-sky-400/10 blur-3xl"></div>
+
+  <header class="sticky top-0 z-50 border-b border-white/10 bg-slate-950/58 backdrop-blur-xl">
+    <div class="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-blue-400/50 to-transparent"></div>
+    <div class="mx-auto max-w-7xl px-6 md:px-8">
+      <div class="flex h-20 items-center justify-between gap-8">
+        <a href="#home" class="flex items-center gap-3 justify-self-start">
+          <span class="glass-card flex h-11 w-11 items-center justify-center rounded-2xl text-blue-300 shadow-glass">
+            <i data-lucide="package" class="h-5 w-5"></i>
+          </span>
+          <div>
+            <span class="block text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-500">Industry 4.0</span>
+            <span class="block text-base font-bold tracking-[-0.04em] text-white">CargoVision AI</span>
+          </div>
+        </a>
+
+        <nav class="hidden flex-1 items-center justify-center gap-x-8 md:flex lg:gap-x-10">
+          <a href="#solution" data-nav-target="#solution" class="text-sm font-medium tracking-wide text-slate-400 transition-colors hover:text-white">Çözüm</a>
+          <a href="#about-us" data-nav-target="#about-us" class="text-sm font-medium tracking-wide text-slate-400 transition-colors hover:text-white">Biz Kimiz</a>
+          <a href="#features" data-nav-target="#features" class="text-sm font-medium tracking-wide text-slate-400 transition-colors hover:text-white">Kabiliyetler</a>
+          <a href="#process" data-nav-target="#process" class="text-sm font-medium tracking-wide text-slate-400 transition-colors hover:text-white">Süreç</a>
+          <a href="#contact" data-nav-target="#contact" class="text-sm font-medium tracking-wide text-slate-400 transition-colors hover:text-white">İletişim</a>
+        </nav>
+
+        <div class="hidden items-center justify-end md:flex">
+          <a
+            href="http://127.0.0.1:4173/"
+            class="nav-cta glass-card inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-sm font-semibold text-white shadow-glass transition duration-300 hover:-translate-y-0.5 hover:text-blue-100"
+          >
+            Demo Planla
+            <i data-lucide="arrow-up-right" class="cta-icon h-4 w-4 text-blue-300"></i>
+          </a>
+        </div>
+
+        <button
+          id="menuButton"
+          type="button"
+          aria-label="Menüyü Aç"
+          aria-expanded="false"
+          aria-controls="mobileMenu"
+          class="glass-card inline-flex h-11 w-11 items-center justify-center rounded-2xl text-slate-100 md:hidden"
+        >
+          <i data-lucide="menu" class="h-5 w-5"></i>
+        </button>
+      </div>
+    </div>
+
+    <div id="mobileMenu" class="hidden border-t border-white/10 bg-slate-950/84 backdrop-blur-xl md:hidden">
+      <div class="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-4 sm:px-6">
+        <a href="#solution" data-nav-target="#solution" class="rounded-2xl px-4 py-3 text-sm font-medium text-slate-300 transition hover:bg-white/5 hover:text-white">Çözüm</a>
+        <a href="#about-us" data-nav-target="#about-us" class="rounded-2xl px-4 py-3 text-sm font-medium text-slate-300 transition hover:bg-white/5 hover:text-white">Biz Kimiz</a>
+        <a href="#features" data-nav-target="#features" class="rounded-2xl px-4 py-3 text-sm font-medium text-slate-300 transition hover:bg-white/5 hover:text-white">Kabiliyetler</a>
+        <a href="#process" data-nav-target="#process" class="rounded-2xl px-4 py-3 text-sm font-medium text-slate-300 transition hover:bg-white/5 hover:text-white">Süreç</a>
+        <a href="#contact" data-nav-target="#contact" class="rounded-2xl px-4 py-3 text-sm font-medium text-slate-300 transition hover:bg-white/5 hover:text-white">İletişim</a>
+        <a
+          href="http://127.0.0.1:4173/"
+          class="nav-cta glass-card mt-2 inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-semibold text-white"
+        >
+          Demo Planla
+          <i data-lucide="arrow-up-right" class="cta-icon h-4 w-4 text-blue-300"></i>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="home" class="relative pt-8 sm:pt-10">
+      <div class="mx-auto max-w-7xl px-6 md:px-8">
+        <div class="relative isolate overflow-visible rounded-[2.2rem] pb-10 pt-8 sm:pt-12 lg:pb-20">
+          <div class="absolute left-[6%] top-0 -z-10 h-64 w-64 rounded-full bg-blue-500/14 blur-3xl"></div>
+          <div class="absolute right-[8%] top-20 -z-10 h-72 w-72 rounded-full bg-orange-500/16 blur-3xl"></div>
+
+          <div class="grid items-start gap-12 lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)] lg:gap-14">
+            <div class="reveal relative z-10 flex h-full flex-col justify-start lg:-mt-2 lg:pr-6">
+              <span class="glass-card inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-slate-200">
+                <span class="h-2 w-2 rounded-full bg-blue-400"></span>
+                3D Bin Packing ve Karar Zekası
+              </span>
+
+              <h1 data-highlightable class="mt-8 max-w-4xl text-3xl font-bold tracking-tight leading-tight text-white md:text-4xl lg:text-5xl">
+                Konteyner Hacmini Maksimuma Çıkarın,
+                <span class="bg-gradient-to-r from-blue-300 via-slate-100 to-orange-300 bg-clip-text text-transparent">Lojistik Maliyetlerini Minimuma İndirin.</span>
+              </h1>
+
+              <p class="mt-6 max-w-3xl text-base leading-8 text-slate-400 sm:text-lg">
+                3D akıllı yerleşim algoritması ve operatör takip ekranıyla, ofis planını depo sahasına bağlayan uçtan uca lojistik karar zekası.
+              </p>
+
+              <div class="mt-8 flex flex-col gap-4 sm:flex-row">
+                <a
+                  href="#contact"
+                  data-nav-target="#contact"
+                  class="nav-cta glass-card inline-flex items-center justify-center gap-2 rounded-2xl px-6 py-3.5 text-sm font-semibold text-white shadow-glass transition duration-300 hover:-translate-y-0.5"
+                >
+                  Demo Talebi
+                  <i data-lucide="arrow-right" class="cta-icon h-4 w-4 text-blue-300"></i>
+                </a>
+                <a
+                  href="#solution"
+                  data-nav-target="#solution"
+                  class="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-6 py-3.5 text-sm font-semibold text-slate-100 backdrop-blur-xl transition duration-300 hover:-translate-y-0.5 hover:border-white/20"
+                >
+                  Çözümü İncele
+                  <i data-lucide="sparkles" class="h-4 w-4 text-orange-300"></i>
+                </a>
+              </div>
+            </div>
+
+            <div id="simulation" class="reveal relative flex flex-col justify-center lg:pl-4">
+              <div class="simulation-panel glass-card relative flex h-[28rem] flex-col overflow-hidden rounded-[2rem] p-5 shadow-ambient sm:h-[29rem] lg:h-[30rem]">
+                <div class="absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+
+                <div class="relative z-10 flex items-start justify-between gap-4">
+                  <div>
+                    <p class="font-mono text-[10px] uppercase tracking-[0.32em] text-slate-500">Simülasyon Alanı</p>
+                    <p class="mt-2 text-sm font-medium tracking-[-0.02em] text-slate-200">Teknik Simülasyon Sahnesi</p>
+                  </div>
+                  <div class="rounded-full border border-blue-400/20 bg-blue-400/10 px-3 py-1 font-mono text-[10px] font-medium uppercase tracking-[0.26em] text-blue-200">
+                    Canlı Önizleme
+                  </div>
+                </div>
+
+                <div class="relative z-10 mt-5 flex-1 overflow-hidden rounded-[1.7rem] border border-white/10 bg-[linear-gradient(180deg,rgba(6,14,27,0.56),rgba(2,6,23,0.18))]">
+                  <div class="grid-layer absolute inset-0 opacity-20"></div>
+                  <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_24%_18%,rgba(59,130,246,0.14),transparent_34%),radial-gradient(circle_at_82%_78%,rgba(249,115,22,0.08),transparent_24%),linear-gradient(180deg,rgba(255,255,255,0.04),transparent_22%)]"></div>
+
+                  <div class="relative flex h-full flex-col px-5 pb-5 pt-6 sm:px-6 sm:pb-6">
+                    <div class="relative min-h-[12.5rem] flex-1 sm:min-h-[14rem]">
+                      <div class="absolute left-[11%] top-[12%] h-[62%] w-[64%] rounded-[1.9rem] border border-white/18 bg-gradient-to-br from-white/[0.04] via-transparent to-transparent"></div>
+                      <div class="absolute left-[18%] top-[18%] h-[62%] w-[64%] rounded-[1.9rem] border border-white/10"></div>
+                      <div class="absolute left-[11%] top-[12%] h-[62%] w-[64%] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.03)]"></div>
+
+                      <div class="absolute left-[15%] top-[28%] h-px w-[57%] bg-white/18"></div>
+                      <div class="absolute left-[15%] top-[44%] h-px w-[57%] bg-white/12"></div>
+                      <div class="absolute left-[15%] top-[60%] h-px w-[57%] bg-white/12"></div>
+                      <div class="absolute left-[15%] top-[76%] h-px w-[57%] bg-white/18"></div>
+
+                      <div class="absolute left-[29%] top-[18%] h-[62%] w-px bg-white/10"></div>
+                      <div class="absolute left-[43%] top-[18%] h-[62%] w-px bg-white/10"></div>
+                      <div class="absolute left-[57%] top-[18%] h-[62%] w-px bg-white/10"></div>
+                      <div class="absolute left-[71%] top-[18%] h-[62%] w-px bg-white/10"></div>
+
+                    <div class="absolute right-[8%] top-[8%] flex items-center gap-2 rounded-full border border-orange-300/12 bg-slate-950/55 px-3 py-1.5 backdrop-blur-xl">
+                      <span class="h-2 w-2 rounded-full bg-orange-300 shadow-[0_0_18px_rgba(251,146,60,0.75)]"></span>
+                        <span class="font-mono text-[10px] uppercase tracking-[0.28em] text-slate-400">Orbit Hazır</span>
+                      </div>
+                    </div>
+
+                    <div class="mt-2 grid gap-3 border-t border-white/8 pt-3 sm:grid-cols-[1fr_auto_1fr] sm:items-start sm:gap-4">
+                      <div class="max-w-[14rem]">
+                        <p class="font-mono text-[10px] uppercase tracking-[0.28em] text-slate-500">Three.js Stage</p>
+                        <p class="mt-2 text-sm leading-7 text-slate-300">Döndürülebilir konteyner sahnesi için açık, okunur ve katmansız bir yerleşim.</p>
+                      </div>
+                      <div class="hidden h-full min-h-[58px] w-px bg-gradient-to-b from-transparent via-white/14 to-transparent sm:block"></div>
+                      <div class="max-w-[14rem]">
+                        <p class="font-mono text-[10px] uppercase tracking-[0.28em] text-slate-500">Viewport</p>
+                        <p class="mt-2 text-sm leading-7 text-slate-400">Grid ile hizalı, premium ve etkileşime hazır bir teknik çerçeve.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-12 grid grid-cols-1 gap-8 md:mt-16 md:grid-cols-3">
+              <div class="glass-card rounded-2xl px-4 py-3.5 shadow-glass">
+                  <p class="font-mono text-[10px] uppercase tracking-[0.28em] text-orange-300/80">Veri Kartı 01</p>
+                  <p class="mt-2 text-sm font-medium text-orange-100">%18 Hacim Kazancı</p>
+                </div>
+                <div class="glass-card rounded-2xl px-4 py-3.5 shadow-glass">
+                  <p class="font-mono text-[10px] uppercase tracking-[0.28em] text-orange-300/80">Veri Kartı 02</p>
+                  <p class="mt-2 text-sm font-medium text-slate-100">Adım Adım <span class="text-orange-200">Simülasyon</span></p>
+                </div>
+                <div class="glass-card rounded-2xl px-4 py-3.5 shadow-glass">
+                  <p class="font-mono text-[10px] uppercase tracking-[0.28em] text-orange-300/80">Veri Kartı 03</p>
+                  <p class="mt-2 text-sm font-medium text-slate-100">Operatör <span class="text-orange-200">Checklist</span></p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="reveal relative z-10 mx-auto mt-16 w-full max-w-6xl">
+            <div class="glass-card rounded-[1.9rem] p-6 shadow-glass sm:p-7">
+              <div class="grid gap-6 md:grid-cols-3">
+                <div class="flex flex-col items-center text-center">
+                  <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Giriş &amp; Parametre Yönetimi</p>
+                  <p class="mt-3 text-lg font-semibold tracking-[-0.04em] text-white">Konteyner tipi seçimi, akıllı boyut formları ve CSV ile toplu yükleme altyapısı.</p>
+                </div>
+                <div class="flex flex-col items-center text-center">
+                  <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">3D Simülasyon Motoru</p>
+                  <p class="mt-3 max-w-xs text-sm leading-7 text-slate-400">Three.js sahnesinde döndürülebilir, oynat/durdur kontrollü adım adım yerleşim animasyonu.</p>
+                </div>
+                <div class="flex flex-col items-center text-center">
+                  <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Operatör Takip Sistemi</p>
+                  <p class="mt-3 max-w-xs text-sm leading-7 text-slate-400">Saha personeli için dijital checklist ve gerçek zamanlı iş tamamlama takibi.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="solution" class="relative -mt-4 py-24 sm:py-28">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="reveal mx-auto max-w-3xl text-center">
+          <span class="text-sm font-semibold uppercase tracking-[0.28em] text-blue-300">Çözüm</span>
+          <h2 data-highlightable class="mt-4 text-4xl font-bold tracking-[-0.06em] text-white sm:text-5xl">
+            Dağınık Operasyonlardan
+            <span class="text-slate-300">Ölçülebilir Optimizasyona</span>
+          </h2>
+          <p class="mt-5 text-base leading-8 text-slate-400 sm:text-lg">
+            CargoVision AI; manuel yerleşim sezgilerini 3D matematiksel algoritmalarla, ofis kararlarını ise sahadaki operatör adımlarıyla birleştirir.
+          </p>
+        </div>
+
+        <div class="mt-14 grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+          <article class="reveal glass-card rounded-[2rem] p-8 shadow-glass">
+            <div class="flex items-center gap-3">
+              <span class="glass-card flex h-12 w-12 items-center justify-center rounded-2xl text-slate-200">
+                <i data-lucide="workflow" class="h-5 w-5"></i>
+              </span>
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Sorun</p>
+                <h3 class="text-2xl font-semibold tracking-[-0.04em] text-white">Görünmezlik ve Kopukluk</h3>
+              </div>
+            </div>
+            <p class="mt-8 rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-5 text-sm leading-7 text-slate-400">
+              Ofiste yapılan teorik planların depodaki operatör tarafından nasıl uygulandığı izlenemez. Kişisel deneyime bağlı yerleşimler metreküp (m³) kaybına, dengesiz ağırlık dağılımına ve kapasite aşımına yol açar.
+            </p>
+          </article>
+
+          <article class="reveal glass-card rounded-[2rem] p-8 shadow-glass lg:translate-y-10">
+            <div class="flex items-center gap-3">
+              <span class="glass-card flex h-12 w-12 items-center justify-center rounded-2xl text-blue-300">
+                <i data-lucide="sparkles" class="h-5 w-5"></i>
+              </span>
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-orange-300">Çözüm</p>
+                <h3 class="text-2xl font-semibold tracking-[-0.04em] text-white">Uçtan Uca Dijital İstifleme</h3>
+              </div>
+            </div>
+            <p class="mt-8 rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-5 text-sm leading-7 text-slate-300">
+              Tüm yük parametreleri tek bir akıllı formda birleşir, Three.js ile görsel olarak doğrulanır ve operatör ekranındaki dijital checklist sayesinde sahada hatasız şekilde tamamlanır.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="about-us" class="relative py-24 sm:py-28">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="reveal mx-auto max-w-3xl text-center">
+          <span class="text-sm font-semibold uppercase tracking-[0.28em] text-blue-300">Biz Kimiz</span>
+          <h2 data-highlightable class="mt-4 cursor-default text-4xl font-bold tracking-[-0.06em] text-white transition-colors duration-200 hover:text-slate-100 sm:text-5xl">
+            Vizyonumuzun Arkasındaki Ekip
+          </h2>
+          <p class="mt-5 text-base leading-8 text-slate-400 sm:text-lg">
+            Bursa Uludağ Üniversitesi Yönetim Bilişim Sistemleri öğrencilerinden oluşan; veri, tasarım ve lojistiği teknolojiyle harmanlayan bir ekip.
+          </p>
+        </div>
+
+        <div class="mt-16 grid gap-6 lg:grid-cols-4">
+          <article class="team-card reveal glass-card relative flex h-full min-h-[320px] flex-col rounded-[1.75rem] p-7 shadow-glass transition duration-300 hover:border-white/20">
+            <div class="absolute inset-y-6 left-4 flex w-6 items-center justify-center overflow-hidden">
+              <span class="[writing-mode:vertical-rl] rotate-180 whitespace-nowrap text-[9px] font-semibold uppercase tracking-[0.22em] text-slate-500">
+                Ekip Üyesi
+              </span>
+            </div>
+            <div class="pl-10 flex h-full flex-col">
+              <div class="flex items-start justify-between gap-4">
+                <h3 class="team-name max-w-[14rem] text-[1.65rem] font-semibold tracking-[-0.04em] text-white">
+                  Mohamad Alchekh
+                </h3>
+                <span class="team-icon glass-card flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-blue-300">
+                  <i data-lucide="user" class="h-5 w-5"></i>
+                </span>
+              </div>
+              <p class="mt-6 text-sm leading-7 text-slate-400">
+                Ürün vizyonu, karar mimarisi ve analitik düşünceyi platform stratejisine dönüştürerek CargoVision AI’ın çekirdek yapısını şekillendirir.
+              </p>
+              <div class="mt-auto pt-6">
+                <div class="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm font-medium text-slate-200">
+                  Backend Developer
+                </div>
+              </div>
+            </div>
+            
+          </article>
+
+          <article class="team-card reveal glass-card relative flex h-full min-h-[320px] flex-col rounded-[1.75rem] p-7 shadow-glass transition duration-300 hover:border-white/20">
+            <div class="absolute inset-y-6 left-4 flex w-6 items-center justify-center overflow-hidden">
+              <span class="[writing-mode:vertical-rl] rotate-180 whitespace-nowrap text-[9px] font-semibold uppercase tracking-[0.22em] text-slate-500">
+                Ekip Üyesi
+              </span>
+            </div>
+            <div class="pl-10 flex h-full flex-col">
+              <div class="flex items-start justify-between gap-4">
+                <h3 class="team-name max-w-[14rem] text-[1.65rem] font-semibold tracking-[-0.04em] text-white">
+                  Mehmet Sahaf Bayrakçı
+                </h3>
+                <span class="team-icon glass-card flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-blue-300">
+                  <i data-lucide="user" class="h-5 w-5"></i>
+                </span>
+              </div>
+              <p class="mt-6 text-sm leading-7 text-slate-400">
+                Planlama mantığı, veri akışları ve süreç modellemesi tarafında sistem kurgusunu güçlendirerek operasyonel kararların netliğini artırır.
+              </p>
+              <div class="mt-auto pt-6">
+                <div class="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm font-medium text-slate-200">
+                  Animation & Frontend Developer
+                </div>
+              </div>
+            
+          </article>
+
+          <article class="team-card reveal glass-card relative flex h-full min-h-[320px] flex-col rounded-[1.75rem] p-7 shadow-glass transition duration-300 hover:border-white/20">
+            <div class="absolute inset-y-6 left-4 flex w-6 items-center justify-center overflow-hidden">
+              <span class="[writing-mode:vertical-rl] rotate-180 whitespace-nowrap text-[9px] font-semibold uppercase tracking-[0.22em] text-slate-500">
+                Ekip Üyesi
+              </span>
+            </div>
+            <div class="pl-10 flex h-full flex-col">
+              <div class="flex items-start justify-between gap-4">
+                <h3 class="team-name max-w-[14rem] text-[1.65rem] font-semibold tracking-[-0.04em] text-white">
+                  Orhan Emre Bagdu
+                </h3>
+                <span class="team-icon glass-card flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-blue-300">
+                  <i data-lucide="user" class="h-5 w-5"></i>
+                </span>
+              </div>
+              <p class="mt-6 text-sm leading-7 text-slate-400">
+                Sistem tasarımı, veri akışı ve operasyonel uygulanabilirlik katmanlarında ürünün rasyonel omurgasını güçlendirir.
+              </p>
+              <div class="mt-auto pt-6">
+                <div class="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm font-medium text-slate-200">
+                  Backend Developer
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="team-card reveal glass-card relative flex h-full min-h-[320px] flex-col rounded-[1.75rem] p-7 shadow-glass transition duration-300 hover:border-white/20">
+            <div class="absolute inset-y-6 left-4 flex w-6 items-center justify-center overflow-hidden">
+              <span class="[writing-mode:vertical-rl] rotate-180 whitespace-nowrap text-[9px] font-semibold uppercase tracking-[0.22em] text-slate-500">
+                Ekip Üyesi
+              </span>
+            </div>
+            <div class="pl-10 flex h-full flex-col">
+              <div class="flex items-start justify-between gap-4">
+                <h3 class="team-name max-w-[14rem] text-[1.65rem] font-semibold tracking-[-0.04em] text-white">
+                  Merve Subaşı
+                </h3>
+                <span class="team-icon glass-card flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-blue-300">
+                  <i data-lucide="user" class="h-5 w-5"></i>
+                </span>
+              </div>
+              <p class="mt-6 text-sm leading-7 text-slate-400">
+                UI/UX ve frontend geliştirme odağında, veri görselleştirme ve erişilebilir deneyim katmanını şekillendirir.
+              </p>
+              <div class="mt-auto pt-6">
+                <div class="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm font-medium text-slate-200">
+                  Frontend Developer 
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <div class="reveal mx-auto mt-12 max-w-3xl">
+          <article id="vision" class="glass-card rounded-[1.25rem] px-8 py-8 text-center shadow-glass sm:px-10">
+            <p class="text-xs font-semibold uppercase tracking-[0.26em] text-orange-300">Vizyon</p>
+            <h3 class="mt-3 text-2xl font-semibold tracking-[-0.05em] text-white sm:text-[2rem]">
+             Geleneksel Lojistik Operasyonlarını Yapay Zeka ile Yeniden Tanımlıyoruz.
+            </h3>
+            <p class="mx-auto mt-4 max-w-2xl text-sm leading-7 text-slate-400 sm:text-base">
+              Yapay zekanın ve 3D simülasyonun gücünü endüstriyel lojistiğin merkezine taşıyoruz. Amacımız; geleneksel yükleme yöntemlerini geride bırakıp, ofis planlamasından depo zeminine kadar her adımın anlık olarak izlenebildiği, şeffaf ve ölçülebilir bir operasyon standardı inşa etmektir.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="features" class="relative py-24 sm:py-28">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="reveal flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div class="max-w-2xl">
+            <span class="text-sm font-semibold uppercase tracking-[0.28em] text-blue-300">Kabiliyetler</span>
+            <h2 data-highlightable class="mt-4 text-4xl font-bold tracking-[-0.06em] text-white sm:text-5xl">
+             Industry 4.0 Standartlarında
+              <span class="text-slate-300"> İleri Operasyon Panelleri</span>
+            </h2>
+          </div>
+          <p class="max-w-2xl text-base leading-8 text-slate-400">
+            Algoritma mantığının gücünü, gereksiz karmaşadan uzak, optimize edilmiş modüllerle yönetin.
+          </p>
+        </div>
+
+        <div class="mt-14 grid gap-6 lg:grid-cols-12 lg:grid-rows-[minmax(220px,1fr)_minmax(220px,1fr)]">
+          <article class="reveal glass-card rounded-[2rem] p-7 shadow-glass transition duration-300 hover:-translate-y-1 lg:col-span-5 lg:row-span-2">
+            <span class="glass-card flex h-12 w-12 items-center justify-center rounded-2xl text-orange-300">
+              <i data-lucide="scale" class="h-5 w-5"></i>
+            </span>
+            <h3 class="mt-6 text-3xl font-semibold tracking-[-0.05em] text-white">Hacim &amp; Ağırlık Dengesi</h3>
+            <p class="mt-4 max-w-md text-sm leading-7 text-slate-400">
+              Konteyner içinde kullanılabilir hacim ile ağırlık merkezini aynı anda değerlendirir. Bu sayede yalnızca daha fazla yük sığdırmak değil, daha dengeli ve güvenli plan üretmek mümkün olur.
+            </p>
+            <div class="mt-8 space-y-3">
+              <div class="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-slate-300">Ağırlık merkezi kaymalarını görünür kılar.</div>
+              <div class="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-slate-300">Boş hacim ve istif baskısını birlikte optimize eder.</div>
+            </div>
+          </article>
+
+          <article class="reveal glass-card rounded-[2rem] p-7 shadow-glass transition duration-300 hover:-translate-y-1 lg:col-span-4">
+            <span class="glass-card flex h-12 w-12 items-center justify-center rounded-2xl text-orange-300">
+              <i data-lucide="glass-water" class="h-5 w-5"></i>
+            </span>
+            <h3 class="mt-6 text-2xl font-semibold tracking-[-0.04em] text-white">Kırılabilir Ürün Hassasiyeti</h3>
+            <p class="mt-4 text-sm leading-7 text-slate-400">
+              Kırılgan ürünleri baskı oluşturan malzemelerden ayrıştırarak daha kontrollü istif yaklaşımı sunar.
+            </p>
+          </article>
+
+          <article class="reveal glass-card rounded-[2rem] p-7 shadow-glass transition duration-300 hover:-translate-y-1 lg:col-span-3">
+            <span class="glass-card flex h-12 w-12 items-center justify-center rounded-2xl text-blue-300">
+              <i data-lucide="layout-panel-top" class="h-5 w-5"></i>
+            </span>
+            <h3 class="mt-6 text-2xl font-semibold tracking-[-0.04em] text-white">Duvar / Sütun Yerleşimi</h3>
+            <p class="mt-4 text-sm leading-7 text-slate-400">
+              Saha pratiğine yakın katmanlı yükleme kalıpları üretir.
+            </p>
+          </article>
+
+          <article class="reveal glass-card rounded-[2rem] p-7 shadow-glass transition duration-300 hover:-translate-y-1 lg:col-span-3">
+            <span class="glass-card flex h-12 w-12 items-center justify-center rounded-2xl text-blue-300">
+              <i data-lucide="circle-dollar-sign" class="h-5 w-5"></i>
+            </span>
+            <h3 class="mt-6 text-2xl font-semibold tracking-[-0.04em] text-white">Yüksek Değerli Öncelik</h3>
+            <p class="mt-4 text-sm leading-7 text-slate-400">
+              Kapasiteyi ticari etkiye göre önceliklendirir ve yüksek değerli ürünler için stratejik alan ayırır.
+            </p>
+          </article>
+
+          <article class="reveal glass-card rounded-[2rem] p-7 shadow-glass transition duration-300 hover:-translate-y-1 lg:col-span-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Operasyonel Görünürlük</p>
+                <h3 class="mt-2 text-2xl font-semibold tracking-[-0.04em] text-white">Planın sonucu kadar mantığı da görünür olur</h3>
+              </div>
+              <span class="glass-card flex h-12 w-12 items-center justify-center rounded-2xl text-orange-300">
+                <i data-lucide="radar" class="h-5 w-5"></i>
+              </span>
+            </div>
+            <div class="mt-6 grid grid-cols-2 gap-3">
+              <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                <p class="text-xs uppercase tracking-[0.24em] text-slate-500">Senaryo</p>
+                <p class="mt-2 text-lg font-semibold text-white">32+</p>
+              </div>
+              <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                <p class="text-xs uppercase tracking-[0.24em] text-slate-500">Denge</p>
+                <p class="mt-2 text-lg font-semibold text-white">Stabil</p>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="process" class="relative py-24 sm:py-28">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="reveal mx-auto max-w-3xl text-center">
+          <span class="text-sm font-semibold uppercase tracking-[0.28em] text-blue-300">Süreç</span>
+          <h2 data-highlightable class="mt-4 text-4xl font-bold tracking-[-0.06em] text-white sm:text-5xl">
+            Veri girişinden
+            <span class="text-slate-300">operasyon çıktısına kadar tek akış</span>
+          </h2>
+          <p class="mt-5 text-base leading-8 text-slate-400 sm:text-lg">
+            Workflow mimarisi, teknik kullanıcıların detay ihtiyacını; yöneticilerin ise sadelik beklentisini aynı anda karşılar.
+          </p>
+        </div>
+
+        <div class="reveal mt-16 glass-card rounded-[2.2rem] p-6 shadow-ambient sm:p-8">
+          <div class="grid gap-5 lg:grid-cols-4">
+            <article class="rounded-[1.7rem] border border-white/10 bg-white/[0.03] p-6">
+              <span class="glass-card flex h-12 w-12 items-center justify-center rounded-2xl text-orange-300">
+                <i data-lucide="database" class="h-5 w-5"></i>
+              </span>
+              <p class="mt-6 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">01</p>
+              <h3 class="mt-2 text-2xl font-semibold tracking-[-0.04em] text-white">Veri Girişi</h3>
+              <p class="mt-3 text-sm leading-7 text-slate-400">Konteyner ölçüsü, yük bilgisi ve operasyon kısıtları sisteme alınır.</p>
+            </article>
+
+            <article class="rounded-[1.7rem] border border-white/10 bg-white/[0.03] p-6">
+              <span class="glass-card flex h-12 w-12 items-center justify-center rounded-2xl text-blue-300">
+                <i data-lucide="sliders-horizontal" class="h-5 w-5"></i>
+              </span>
+              <p class="mt-6 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">02</p>
+              <h3 class="mt-2 text-2xl font-semibold tracking-[-0.04em] text-white">Optimizasyon</h3>
+              <p class="mt-3 text-sm leading-7 text-slate-400">Hacim, ağırlık ve öncelik kuralları birlikte işlenir.</p>
+            </article>
+
+            <article class="rounded-[1.7rem] border border-white/10 bg-white/[0.03] p-6">
+              <span class="glass-card flex h-12 w-12 items-center justify-center rounded-2xl text-blue-300">
+                <i data-lucide="box" class="h-5 w-5"></i>
+              </span>
+              <p class="mt-6 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">03</p>
+              <h3 class="mt-2 text-2xl font-semibold tracking-[-0.04em] text-white">Simülasyon</h3>
+              <p class="mt-3 text-sm leading-7 text-slate-400">Yerleşim teknik sahnede görsel ve operasyonel olarak test edilir.</p>
+            </article>
+
+            <article class="rounded-[1.7rem] border border-white/10 bg-white/[0.03] p-6">
+              <span class="glass-card flex h-12 w-12 items-center justify-center rounded-2xl text-blue-300">
+                <i data-lucide="file-text" class="h-5 w-5"></i>
+              </span>
+              <p class="mt-6 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">04</p>
+              <h3 class="mt-2 text-2xl font-semibold tracking-[-0.04em] text-white">Çıktı / PDF</h3>
+              <p class="mt-3 text-sm leading-7 text-slate-400">Karar izi üreten rapor, saha ve yönetim ekipleriyle paylaşılır.</p>
+            </article>
+          </div>
+
+          <div class="mt-6 hidden items-center gap-4 lg:flex">
+            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/15 to-white/15"></div>
+            <div class="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
+              Workflow Motoru
+            </div>
+            <div class="h-px flex-1 bg-gradient-to-r from-white/15 via-white/15 to-transparent"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="relative pb-16 pt-8 sm:pb-20">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="reveal glass-card rounded-[2.2rem] p-8 shadow-ambient sm:p-10 lg:p-12">
+          <div class="grid gap-10 lg:grid-cols-[0.95fr_1.05fr]">
+            <div>
+              <span class="text-sm font-semibold uppercase tracking-[0.28em] text-blue-300">İletişim</span>
+              <h2 data-highlightable class="mt-4 max-w-xl text-4xl font-bold tracking-[-0.06em] text-white sm:text-5xl">
+                Operasyonel görünürlüğü
+                <span class="text-slate-300">artırmaya hazır mısınız?</span>
+              </h2>
+              <p class="mt-5 max-w-xl text-base leading-8 text-slate-400 sm:text-lg">
+                CargoVision AI; yöneticiler için daha net görünürlük, planlama ekipleri için daha hızlı karar ve saha için daha uygulanabilir çıktı üretir.
+              </p>
+              <div class="mt-8 grid gap-4 sm:grid-cols-2">
+                <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                  <p class="text-xs uppercase tracking-[0.24em] text-slate-500">E-posta</p>
+                  <a href="mailto:iletisim@cargovision.ai" class="mt-3 inline-flex items-center gap-2 text-sm text-slate-200 transition hover:text-white">
+                    <i data-lucide="mail" class="h-4 w-4 text-blue-300"></i>
+                    iletisim@cargovision.ai
+                  </a>
+                </div>
+                <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                  <p class="text-xs uppercase tracking-[0.24em] text-slate-500">Konum</p>
+                  <p class="mt-3 text-sm text-slate-200">Gururla Kocaeli’de geliştirildi</p>
+                </div>
+              </div>
+            </div>
+
+            <form class="grid gap-4 rounded-[1.75rem] border border-white/10 bg-white/[0.03] p-6">
+              <div class="grid gap-4 sm:grid-cols-2">
+                <label class="block">
+                  <span class="mb-2 block text-sm font-medium text-slate-300">Ad Soyad</span>
+                  <input type="text" placeholder="Adınızı girin" class="w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-blue-400/50 focus:bg-white/[0.06]">
+                </label>
+                <label class="block">
+                  <span class="mb-2 block text-sm font-medium text-slate-300">Şirket</span>
+                  <input type="text" placeholder="Şirket adı" class="w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-blue-400/50 focus:bg-white/[0.06]">
+                </label>
+              </div>
+              <label class="block">
+                <span class="mb-2 block text-sm font-medium text-slate-300">E-posta</span>
+                <input type="email" placeholder="ornek@sirket.com" class="w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-blue-400/50 focus:bg-white/[0.06]">
+              </label>
+              <label class="block">
+                <span class="mb-2 block text-sm font-medium text-slate-300">Notunuz</span>
+                <textarea rows="5" placeholder="Operasyonel hedefinizi kısaca paylaşın" class="w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-blue-400/50 focus:bg-white/[0.06]"></textarea>
+              </label>
+              <button type="button" class="glass-card inline-flex items-center justify-center gap-2 rounded-2xl px-6 py-3.5 text-sm font-semibold text-white transition duration-300 hover:-translate-y-0.5">
+                Demoyu Planla
+                <i data-lucide="send" class="h-4 w-4 text-blue-300"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="relative border-t border-white/10 bg-[#010510]">
+    <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+    <div class="mx-auto max-w-7xl px-4 pb-8 pt-14 sm:px-6 lg:px-8">
+      <div class="grid gap-10 lg:grid-cols-[1.15fr_1fr_1fr_1fr_1.15fr]">
+        <div class="reveal lg:pr-8">
+          <div class="flex items-center gap-3">
+            <span class="glass-card flex h-11 w-11 items-center justify-center rounded-2xl text-blue-300">
+              <i data-lucide="package" class="h-5 w-5"></i>
+            </span>
+            <div>
+              <p class="text-base font-bold tracking-[-0.04em] text-white">CargoVision AI</p>
+              <p class="text-xs uppercase tracking-[0.24em] text-slate-500">Industry 4.0 Platformu</p>
+            </div>
+          </div>
+          <p class="mt-5 max-w-xs text-sm leading-7 text-slate-400">
+            Lojistik operasyonlarda verimlilik ve karar zekası.
+          </p>
+          <div class="mt-6 flex items-center gap-3">
+            <a href="#" aria-label="LinkedIn" class="text-slate-500 transition hover:text-blue-400">
+              <i data-lucide="linkedin" class="h-5 w-5"></i>
+            </a>
+            <a href="#" aria-label="GitHub" class="text-slate-500 transition hover:text-blue-400">
+              <i data-lucide="github" class="h-5 w-5"></i>
+            </a>
+            <a href="#" aria-label="X" class="text-slate-500 transition hover:text-blue-400">
+              <i data-lucide="twitter" class="h-5 w-5"></i>
+            </a>
+          </div>
+        </div>
+
+        <div class="reveal">
+          <p class="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">Ürün</p>
+          <div class="mt-5 space-y-3 text-sm text-slate-400">
+            <a href="#solution" data-nav-target="#solution" class="block transition hover:text-white">Çözüm</a>
+            <a href="#features" data-nav-target="#features" class="block transition hover:text-white">Kabiliyetler</a>
+            <a href="#simulation" data-nav-target="#simulation" class="block transition hover:text-white">Simülasyon</a>
+          </div>
+        </div>
+
+        <div class="reveal">
+          <p class="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">Kurumsal</p>
+          <div class="mt-5 space-y-3 text-sm text-slate-400">
+            <a href="#about-us" data-nav-target="#about-us" class="block transition hover:text-white">Biz Kimiz</a>
+            <a href="#vision" data-nav-target="#vision" class="block transition hover:text-white">Vizyon</a>
+          </div>
+        </div>
+
+        <div class="reveal">
+          <p class="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">Destek</p>
+          <div class="mt-5 space-y-3 text-sm text-slate-400">
+            <a href="#process" data-nav-target="#process" class="block transition hover:text-white">Dokümantasyon</a>
+            <a href="#contact" data-nav-target="#contact" class="block transition hover:text-white">İletişim</a>
+          </div>
+        </div>
+
+        <div class="reveal">
+          <p class="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">Güven &amp; Kaynak</p>
+          <p class="mt-5 text-sm leading-7 text-slate-400">
+            Bursa Uludağ Üniversitesi YBS
+            <span class="block text-slate-500">Gururla Bursa’da geliştirildi.</span>
+          </p>
+          <div class="glass-card mt-6 rounded-[1.6rem] p-4">
+            <label class="block">
+              <span class="mb-2 block text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Bültene Katıl</span>
+              <div class="flex gap-2">
+                <input type="email" placeholder="E-posta adresiniz" class="min-w-0 flex-1 bg-transparent px-2 py-2 text-sm text-white outline-none placeholder:text-slate-500">
+                <button type="button" class="rounded-xl bg-white/8 px-3 py-2 text-sm font-medium text-slate-200 transition hover:bg-white/12">Katıl</button>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-10 flex flex-col gap-3 border-t border-white/10 pt-6 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+        <p>© 2026 CargoVision AI. Tüm hakları saklıdır.</p>
+        <div class="flex items-center gap-5">
+          <a href="#" class="transition hover:text-slate-300">Gizlilik Politikası</a>
+          <a href="#" class="transition hover:text-slate-300">Kullanım Şartları</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <button
+    id="scrollProgress"
+    type="button"
+    aria-label="Yukarı çık"
+    class="pointer-events-none fixed bottom-6 right-6 z-50 flex h-[78px] w-[78px] translate-y-4 items-center justify-center rounded-full border border-white/10 bg-slate-950/76 opacity-0 backdrop-blur-xl transition duration-300 hover:scale-[1.02] sm:bottom-8 sm:right-8"
+  >
+    <svg class="absolute inset-0 -rotate-90" viewBox="0 0 100 100" aria-hidden="true">
+      <circle cx="50" cy="50" r="44" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="5"></circle>
+      <circle id="progressRing" cx="50" cy="50" r="44" fill="none" stroke="url(#progressGradient)" stroke-linecap="round" stroke-width="5" stroke-dasharray="276.46" stroke-dashoffset="276.46"></circle>
+      <defs>
+        <linearGradient id="progressGradient" x1="0%" x2="100%">
+          <stop offset="0%" stop-color="#3b82f6"></stop>
+          <stop offset="100%" stop-color="#f97316"></stop>
+        </linearGradient>
+      </defs>
+    </svg>
+    <div class="relative flex flex-col items-center justify-center">
+      <i data-lucide="arrow-up" class="h-4 w-4 text-white"></i>
+      <span id="progressValue" class="mt-1 text-[11px] font-semibold text-slate-300">0%</span>
+    </div>
+  </button>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+</body>
+</html>

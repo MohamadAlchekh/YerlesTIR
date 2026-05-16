@@ -1,0 +1,38 @@
+Base 41 Hackathon: 3D Konteyner 
+İstifleme Optimizasyonu Proje Geliştirme 
+Rehberi 
+Bu doküman, ihraç edilecek ürünlerin konteyner içerisine 3 boyutlu olarak en verimli şekilde 
+yerleştirilmesini sağlayan yazılım projeniz için adım adım bir yol haritası sunmaktadır. Bu rehber, 
+Hackathon değerlendirme kriterlerine (Ürün, Mühendislik, Sunum, Sponsor Entegrasyonu) tam 
+uyum sağlayacak şekilde yapılandırılmıştır. 
+1. Adım: Algoritma ve Mantıksal Çerçeve (Mühendislik 
+ve Demo) 
+Projenin kalbi, "Bin Packing Problem" (Kutu Paketleme Problemi) olarak bilinen matematiksel 
+optimizasyondur. 
+●​ Veri Girişi: Kullanıcıdan ürünlerin en, boy, yükseklik, ağırlık ve "üst üste konulabilir mi?" 
+(stackable) bilgisini alın. 
+●​ Konteyner Seçimi: Standart 20' DC, 40' DC ve 40' HC ölçülerini sisteme ön tanımlı 
+olarak girin [cite: 4, 11]. 
+●​ Optimizasyon Algoritması: Ürünleri hacimlerine göre büyükten küçüğe sıralayan ve boş 
+kalan koordinatlara en uygun parçayı yerleştiren bir mantık kurun. Amacınız m³ 
+(metreküp) kaybını minimize etmektir. 
+2. Adım: 3 Boyutlu Görselleştirme (Canlı Demo) 
+Jüriyi etkileyecek en önemli kısım, hesaplanan sonucun görsel olarak sunulmasıdır [cite: 39, 
+40]. 
+●​ Teknoloji Seçimi: Web tabanlı bir çözüm için Three.js veya benzeri bir kütüphane 
+kullanarak konteyner ve ürünleri 3D modeller olarak oluşturun. 
+●​ Görsel Geri Bildirim: Kullanıcı, ürünlerin konteynere nasıl yerleştiğini adım adım 
+görebilmeli veya nihai sonucu 360 derece döndürerek inceleyebilmelidir. 
+●​ Hata Kontrolü: Eğer ürünler konteynere sığmıyorsa, sistemin "Kapasite Aşımı" uyarısı 
+vermesini sağlayın [cite: 41]. 
+●​  
+●​ Diginova Entegrasyonu: Lojistik süreç takibi veya veri analitiği servislerini projenize 
+dahil edin [cite: 48]. 
+5. Adım: Operasyonel Sorunlara Odaklanma 
+Sunumunuzda projenizin şu spesifik sorunları çözdüğünü belirtin: 
+●​ Hız Sınırları: Manuel hesaplamaların yarattığı yavaşlamayı engeller [cite: 76, 77]. 
+●​ Operasyonel Hatalar: İnsan kaynaklı istifleme yanlışlarını minimize ederek fire oranını 
+düşürür [cite: 74, 75]. 
+
+●​ Geri Bildirim Döngüsü: Yanlış yükleme planlarının konteyner kapısında fark 
+edilmesinden kaynaklı maddi zararı önler [cite: 78, 79]. 
