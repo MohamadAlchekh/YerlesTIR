@@ -194,6 +194,16 @@ function App() {
   }, [items]);
 
   useEffect(() => {
+    if (!appError) return undefined;
+
+    const timeoutId = window.setTimeout(() => {
+      setAppError('');
+    }, 4200);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [appError]);
+
+  useEffect(() => {
     const validCategoryIds = new Set(groupItemsByCategory(items).map((category) => category.id));
     setExpandedCategories((prev) => new Set([...prev].filter((id) => validCategoryIds.has(id))));
   }, [items]);
