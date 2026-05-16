@@ -1,22 +1,26 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  Package,
-  Truck,
-  Layers,
-  Info,
-  Trash2,
-  Box,
-  BarChart3,
-  Play,
-  Pause,
-  SkipForward,
-  SkipBack,
-  CheckSquare,
-  Upload,
+  AlertTriangle,
   ArrowRight,
+  BarChart3,
+  Box,
   CheckCircle2,
+  CheckSquare,
+  ChevronDown,
+  ChevronRight,
   Circle,
   Home,
+  Info,
+  Layers,
+  Package,
+  Pause,
+  Play,
+  SkipBack,
+  SkipForward,
+  Trash2,
+  Truck,
+  Upload,
+  X,
 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import './App.css';
@@ -37,6 +41,9 @@ const PRODUCT_CATALOG = [
 
 const LOCAL_PLAN_KEY = 'cargovision-local-plan';
 const FAST_PLAYBACK_SPEED = 3.4;
+const MAX_TOTAL_ITEMS = 300;
+const MAX_DIMENSION = 1205;
+
 const INITIAL_NEW_ITEM = {
   name: '',
   w: '',
@@ -46,6 +53,62 @@ const INITIAL_NEW_ITEM = {
   stackable: true,
   count: '1',
 };
+
+function groupItemsByCategory(items) {
+  const categoryMap = new Map();
+
+  items.forEach((item) => {
+    const categoryId = item.category || 'general';
+    const categoryLabel = item.categoryLabel || 'Genel Kargo';
+    const categoryEntry = categoryMap.get(categoryId) || {
+      id: categoryId,
+      label: categoryLabel,
+      itemCount: 0,
+      groups: new Map(),
+      items: [],
+    };
+
+    categoryEntry.itemCount += 1;
+    categoryEntry.items.push(item);
+
+    const groupKey = [
+      categoryId,
+      item.name,
+      item.w,
+      item.h,
+      item.d,
+      item.weight,
+      item.fragile ? '1' : '0',
+    ].join('|');
+
+    const groupEntry = categoryEntry.groups.get(groupKey) || {
+      key: groupKey,
+      name: item.name,
+      w: item.w,
+      h: item.h,
+      d: item.d,
+      weight: item.weight,
+      fragile: item.fragile,
+      itemIds: [],
+      count: 0,
+    };
+
+    groupEntry.itemIds.push(item.id);
+    groupEntry.count += 1;
+    categoryEntry.groups.set(groupKey, groupEntry);
+    categoryMap.set(categoryId, categoryEntry);
+  });
+
+  return Array.from(categoryMap.values())
+    .map((category) => ({
+      ...category,
+      groups: Array.from(category.groups.values()).sort((a, b) =>
+        a.name.localeCompare(b.name, 'tr')
+      ),
+      items: [...category.items].sort((a, b) => a.name.localeCompare(b.name, 'tr')),
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label, 'tr'));
+}
 
 function App() {
   const [view, setView] = useState('input');
@@ -58,6 +121,10 @@ function App() {
   const [checkedItems, setCheckedItems] = useState(new Set());
   const [newItem, setNewItem] = useState(INITIAL_NEW_ITEM);
   const [hasHydrated, setHasHydrated] = useState(false);
+  const [appError, setAppError] = useState('');
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedItemIds, setSelectedItemIds] = useState(new Set());
+  const [expandedCategories, setExpandedCategories] = useState(new Set());
 
   const fileInputRef = useRef(null);
 
@@ -89,7 +156,10 @@ function App() {
       setNewItem({
         ...INITIAL_NEW_ITEM,
         ...(parsed.newItem || {}),
-        count: parsed?.newItem?.count != null ? String(parsed.newItem.count) : INITIAL_NEW_ITEM.count,
+        count:
+          parsed?.newItem?.count != null
+            ? String(parsed.newItem.count)
+            : INITIAL_NEW_ITEM.count,
       });
     } catch (error) {
       console.warn('Kayıtlı plan okunamadı:', error);
@@ -114,6 +184,41 @@ function App() {
     window.localStorage.setItem(LOCAL_PLAN_KEY, JSON.stringify(payload));
   }, [hasHydrated, view, items, containerType, packResult, animatingIndex, checkedItems, newItem]);
 
+  useEffect(() => {
+    const validIds = new Set(items.map((item) => item.id));
+    setSelectedItemIds((prev) => new Set([...prev].filter((id) => validIds.has(id))));
+
+    if (items.length === 0) {
+      setSelectionMode(false);
+    }
+  }, [items]);
+
+  useEffect(() => {
+    const validCategoryIds = new Set(groupItemsByCategory(items).map((category) => category.id));
+    setExpandedCategories((prev) => new Set([...prev].filter((id) => validCategoryIds.has(id))));
+  }, [items]);
+
+  const groupedCategories = groupItemsByCategory(items);
+  const allSelectableIds = items.map((item) => item.id);
+  const areAllGroupsSelected =
+    allSelectableIds.length > 0 && allSelectableIds.every((id) => selectedItemIds.has(id));
+
+  const showError = (message) => {
+    setAppError(message);
+  };
+
+  const clearError = () => {
+    setAppError('');
+  };
+
+  const handleRemoveItems = (itemIds) => {
+    const idSet = new Set(itemIds);
+
+    setItems((prev) => prev.filter((item) => !idSet.has(item.id)));
+    setSelectedItemIds((prev) => new Set([...prev].filter((id) => !idSet.has(id))));
+    setPackResult(null);
+  };
+
   const handleAddItem = (e) => {
     e.preventDefault();
     if (!newItem.w || !newItem.h || !newItem.d) return;
@@ -121,35 +226,44 @@ function App() {
     const w = Number(newItem.w);
     const h = Number(newItem.h);
     const d = Number(newItem.d);
-    const count = Math.max(1, parseInt(newItem.count, 10) || 1);
-    const maxDimension = 1205;
+    const count = parseInt(newItem.count, 10);
 
-    if (w > maxDimension || h > maxDimension || d > maxDimension) {
-      alert('Hata: Girdiğiniz ürün ölçüleri konteynere sığmayacak kadar büyük.');
+    if (!Number.isFinite(count) || count < 1) {
+      showError('Lütfen geçerli bir adet girin.');
       return;
     }
 
-    if (count > 200 || items.length + count > 300) {
-      alert('Hata: Performans için toplam ürün sayısını 300 ile sınırlandırın.');
+    if (w > MAX_DIMENSION || h > MAX_DIMENSION || d > MAX_DIMENSION) {
+      showError('Ürün ölçüleri konteynere sığmayacak kadar büyük.');
+      return;
+    }
+
+    if (items.length + count > MAX_TOTAL_ITEMS) {
+      showError(
+        `En fazla ${MAX_TOTAL_ITEMS} ürün ekleyebilirsiniz. Şu an ${items.length} ürün var, ${count} adet daha eklenemez.`
+      );
       return;
     }
 
     const addedItems = [];
     for (let i = 0; i < count; i += 1) {
-      addedItems.push(enrichCargoItem({
-        id: uuidv4(),
-        name: newItem.name || 'Kutu',
-        w,
-        h,
-        d,
-        weight: Number(newItem.weight) || 0,
-        stackable: newItem.stackable,
-      }));
+      addedItems.push(
+        enrichCargoItem({
+          id: uuidv4(),
+          name: newItem.name || 'Kutu',
+          w,
+          h,
+          d,
+          weight: Number(newItem.weight) || 0,
+          stackable: newItem.stackable,
+        })
+      );
     }
 
     setItems((prev) => [...prev, ...addedItems]);
     setNewItem({ ...newItem, name: '', w: '', h: '', d: '', weight: '', count: '1' });
     setPackResult(null);
+    clearError();
   };
 
   const handleFileUpload = (e) => {
@@ -161,33 +275,44 @@ function App() {
       const parsed = parseCSV(evt.target.result);
       const newItems = [];
 
-      parsed.forEach((p) => {
-        for (let i = 0; i < p.count; i += 1) {
-          newItems.push(enrichCargoItem({
-            id: uuidv4(),
-            name: p.name,
-            w: p.w,
-            h: p.h,
-            d: p.d,
-            weight: p.weight,
-            stackable: p.stackable,
-            category: p.category,
-            fragile: p.fragile,
-          }));
+      parsed.forEach((parsedItem) => {
+        for (let i = 0; i < parsedItem.count; i += 1) {
+          newItems.push(
+            enrichCargoItem({
+              id: uuidv4(),
+              name: parsedItem.name,
+              w: parsedItem.w,
+              h: parsedItem.h,
+              d: parsedItem.d,
+              weight: parsedItem.weight,
+              stackable: parsedItem.stackable,
+              category: parsedItem.category,
+              fragile: parsedItem.fragile,
+            })
+          );
         }
       });
 
+      if (newItems.length === 0) {
+        showError('CSV içinde eklenebilir ürün bulunamadı.');
+        return;
+      }
+
+      if (items.length + newItems.length > MAX_TOTAL_ITEMS) {
+        const remaining = Math.max(0, MAX_TOTAL_ITEMS - items.length);
+        showError(
+          `CSV yükleme limiti aşıyor. En fazla ${MAX_TOTAL_ITEMS} ürün olabilir, şu an yalnızca ${remaining} ürünlük yer kaldı.`
+        );
+        return;
+      }
+
       setItems((prev) => [...prev, ...newItems]);
       setPackResult(null);
+      clearError();
     };
 
     reader.readAsText(file);
     if (fileInputRef.current) fileInputRef.current.value = '';
-  };
-
-  const handleRemoveItem = (id) => {
-    setItems((prev) => prev.filter((item) => item.id !== id));
-    setPackResult(null);
   };
 
   const handlePack = () => {
@@ -221,6 +346,7 @@ function App() {
     setPlaybackSpeed(1);
     setCheckedItems(new Set());
     setView('optimization');
+    clearError();
   };
 
   const exportJSON = () => {
@@ -302,8 +428,8 @@ function App() {
     setCheckedItems(newChecked);
 
     let max = -1;
-    newChecked.forEach((val) => {
-      if (val > max) max = val;
+    newChecked.forEach((value) => {
+      if (value > max) max = value;
     });
 
     setAnimatingIndex(max + 1);
@@ -336,12 +462,68 @@ function App() {
     setPlaybackSpeed(1);
     setCheckedItems(new Set());
     setNewItem(INITIAL_NEW_ITEM);
+    setSelectionMode(false);
+    setSelectedItemIds(new Set());
+    clearError();
 
     if (typeof window !== 'undefined') {
       window.localStorage.removeItem(LOCAL_PLAN_KEY);
     }
 
     if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleToggleSelectionMode = () => {
+    if (selectionMode) {
+      setSelectionMode(false);
+      setSelectedItemIds(new Set());
+      return;
+    }
+
+    setSelectionMode(true);
+  };
+
+  const handleToggleGroupSelection = (itemIds) => {
+    const allSelected = itemIds.every((id) => selectedItemIds.has(id));
+
+    setSelectedItemIds((prev) => {
+      const next = new Set(prev);
+      if (allSelected) {
+        itemIds.forEach((id) => next.delete(id));
+      } else {
+        itemIds.forEach((id) => next.add(id));
+      }
+      return next;
+    });
+  };
+
+  const handleToggleSelectAllGroups = () => {
+    if (areAllGroupsSelected) {
+      setSelectedItemIds(new Set());
+      return;
+    }
+
+    setSelectedItemIds(new Set(allSelectableIds));
+  };
+
+  const handleDeleteSelected = () => {
+    if (selectedItemIds.size === 0) return;
+
+    handleRemoveItems([...selectedItemIds]);
+    setSelectionMode(false);
+    setSelectedItemIds(new Set());
+  };
+
+  const handleToggleCategory = (categoryId) => {
+    setExpandedCategories((prev) => {
+      const next = new Set(prev);
+      if (next.has(categoryId)) {
+        next.delete(categoryId);
+      } else {
+        next.add(categoryId);
+      }
+      return next;
+    });
   };
 
   const totalWeight =
@@ -403,6 +585,23 @@ function App() {
         </div>
       </div>
 
+      {appError ? (
+        <div className="app-alert app-alert-error glass-panel" role="alert">
+          <div className="app-alert-content">
+            <AlertTriangle size={18} />
+            <span>{appError}</span>
+          </div>
+          <button
+            className="app-alert-close"
+            onClick={clearError}
+            aria-label="Hata mesajını kapat"
+            type="button"
+          >
+            <X size={16} />
+          </button>
+        </div>
+      ) : null}
+
       <div className="app-container">
         {view === 'input' && (
           <>
@@ -412,9 +611,9 @@ function App() {
               </h2>
               <div className="form-group">
                 <select value={containerType} onChange={(e) => setContainerType(e.target.value)}>
-                  {Object.entries(CONTAINERS).map(([key, c]) => (
+                  {Object.entries(CONTAINERS).map(([key, container]) => (
                     <option key={key} value={key}>
-                      {c.name}
+                      {container.name}
                     </option>
                   ))}
                 </select>
@@ -455,7 +654,7 @@ function App() {
                   />
                   <input
                     type="number"
-                    placeholder="Der (cm)"
+                    placeholder="Derinlik (cm)"
                     min="1"
                     required
                     value={newItem.d}
@@ -478,9 +677,7 @@ function App() {
                     min="1"
                     required
                     value={newItem.count}
-                    onChange={(e) =>
-                      setNewItem({ ...newItem, count: e.target.value })
-                    }
+                    onChange={(e) => setNewItem({ ...newItem, count: e.target.value })}
                     className="flex-1"
                   />
                 </div>
@@ -502,9 +699,9 @@ function App() {
               <div style={{ marginBottom: '1rem' }}>
                 <h3 className="section-note">Katalogdan Hızlı Seçim:</h3>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                  {PRODUCT_CATALOG.map((cat, i) => (
+                  {PRODUCT_CATALOG.map((catalogItem, index) => (
                     <button
-                      key={i}
+                      key={index}
                       type="button"
                       className="btn btn-secondary"
                       style={{
@@ -520,17 +717,17 @@ function App() {
                       onClick={() =>
                         setNewItem({
                           ...newItem,
-                          name: cat.name,
-                          w: cat.w,
-                          h: cat.h,
-                          d: cat.d,
-                          weight: cat.weight,
+                          name: catalogItem.name,
+                          w: catalogItem.w,
+                          h: catalogItem.h,
+                          d: catalogItem.d,
+                          weight: catalogItem.weight,
                           count: '1',
                         })
                       }
-                      title={`${cat.name} (${cat.w}x${cat.h}x${cat.d} cm, ${cat.weight} kg)`}
+                      title={`${catalogItem.name} (${catalogItem.w}x${catalogItem.h}x${catalogItem.d} cm, ${catalogItem.weight} kg)`}
                     >
-                      {cat.name}
+                      {catalogItem.name}
                     </button>
                   ))}
                 </div>
@@ -578,9 +775,50 @@ function App() {
             </div>
 
             <div className="main-view glass-panel" style={{ padding: '1.5rem', overflowY: 'auto' }}>
-              <h2>
-                <Package size={18} /> Eklenen Ürünler ({items.length})
-              </h2>
+              <div className="items-toolbar">
+                <h2 style={{ marginBottom: 0 }}>
+                  <Package size={18} /> Eklenen Ürünler ({items.length})
+                </h2>
+                {items.length > 0 ? (
+                  <div className="items-toolbar-actions">
+                    {selectionMode ? (
+                      <>
+                        <button
+                          className="btn btn-secondary btn-inline"
+                          onClick={handleToggleSelectAllGroups}
+                          type="button"
+                        >
+                          {areAllGroupsSelected ? 'Seçimi Temizle' : 'Tümünü Seç'}
+                        </button>
+                        <button
+                          className="btn btn-danger btn-inline"
+                          onClick={handleDeleteSelected}
+                          disabled={selectedItemIds.size === 0}
+                          type="button"
+                        >
+                          Seçilenleri Sil ({selectedItemIds.size})
+                        </button>
+                        <button
+                          className="btn btn-secondary btn-inline"
+                          onClick={handleToggleSelectionMode}
+                          type="button"
+                        >
+                          İptal
+                        </button>
+                      </>
+                    ) : (
+                      <button
+                        className="btn btn-secondary btn-inline"
+                        onClick={handleToggleSelectionMode}
+                        type="button"
+                      >
+                        Ürün Seç
+                      </button>
+                    )}
+                  </div>
+                ) : null}
+              </div>
+
               {items.length === 0 ? (
                 <div className="empty-state">
                   Henüz ürün eklenmedi. Örnek CSV formatı:
@@ -589,28 +827,104 @@ function App() {
                   <code>isim, adet, en, boy, derinlik, ağırlık</code>
                 </div>
               ) : (
-                <div className="items-grid">
-                  {items.map((item, idx) => (
-                    <div
-                      key={item.id}
-                      className="item-card animate-fade-in"
-                      style={{ animationDelay: `${Math.min(idx * 0.02, 1)}s` }}
-                    >
-                      <div className="item-info">
-                        <span className="item-name">{item.name}</span>
-                        <span className="item-dims">
-                          {item.w}x{item.h}x{item.d} cm {item.weight > 0 ? `| ${item.weight}kg` : ''}
-                        </span>
-                        <div className="item-meta">
-                          <span className="item-chip">{item.categoryLabel || 'Genel Kargo'}</span>
-                          {item.fragile ? <span className="item-chip item-chip-fragile">Kırılabilir</span> : null}
+                <div className="category-sections">
+                  {groupedCategories.map((category) => {
+                    const isExpanded = expandedCategories.has(category.id);
+
+                    return (
+                    <section key={category.id} className="category-section">
+                      <button
+                        className="category-header category-toggle"
+                        onClick={() => handleToggleCategory(category.id)}
+                        type="button"
+                      >
+                        <div>
+                          <h3 className="category-title">{category.label}</h3>
+                          <p className="category-subtitle">
+                            {category.groups.length} grup, {category.itemCount} ürün
+                          </p>
                         </div>
-                      </div>
-                      <button className="delete-btn" onClick={() => handleRemoveItem(item.id)} type="button">
-                        <Trash2 size={16} />
+                        <div className="category-header-right">
+                          <span className="category-count">{category.itemCount}</span>
+                          {isExpanded ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+                        </div>
                       </button>
-                    </div>
-                  ))}
+
+                      {isExpanded ? (
+                        <div className="category-list">
+                          {category.items.map((item) => {
+                            const isSelected = selectedItemIds.has(item.id);
+
+                            return (
+                              <div
+                                key={item.id}
+                                className={`item-card grouped-item ${
+                                  selectionMode ? 'selectable' : ''
+                                } ${isSelected ? 'selected' : ''}`}
+                                onClick={
+                                  selectionMode
+                                    ? () => handleToggleGroupSelection([item.id])
+                                    : undefined
+                                }
+                                onKeyDown={
+                                  selectionMode
+                                    ? (e) => {
+                                        if (e.key === 'Enter' || e.key === ' ') {
+                                          e.preventDefault();
+                                          handleToggleGroupSelection([item.id]);
+                                        }
+                                      }
+                                    : undefined
+                                }
+                                role={selectionMode ? 'button' : undefined}
+                                tabIndex={selectionMode ? 0 : undefined}
+                              >
+                                {selectionMode ? (
+                                  <div className="group-select-indicator">
+                                    {isSelected ? (
+                                      <CheckCircle2 size={20} color="#93c5fd" />
+                                    ) : (
+                                      <Circle size={20} color="var(--text-muted)" />
+                                    )}
+                                  </div>
+                                ) : null}
+
+                                <div className="item-info">
+                                  <span className="item-name">{item.name}</span>
+                                  <span className="item-dims">
+                                    {item.w}x{item.h}x{item.d} cm
+                                    {item.weight > 0 ? ` | ${item.weight} kg` : ''}
+                                  </span>
+                                  <div className="item-meta">
+                                    <span className="item-chip">{item.categoryLabel || 'Genel Kargo'}</span>
+                                    {item.fragile ? (
+                                      <span className="item-chip item-chip-fragile">Kırılabilir</span>
+                                    ) : null}
+                                  </div>
+                                </div>
+
+                                <div className="group-actions">
+                                  {!selectionMode ? (
+                                    <button
+                                      className="delete-btn"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleRemoveItems([item.id]);
+                                      }}
+                                      type="button"
+                                    >
+                                      <Trash2 size={16} />
+                                    </button>
+                                  ) : null}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : null}
+                    </section>
+                    );
+                  })}
                 </div>
               )}
             </div>
