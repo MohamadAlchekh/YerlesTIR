@@ -340,16 +340,10 @@ export default function Scene3D({
       const h = item.placedH * scale;
       const d = item.placedD * scale;
       
-      // Convert corner-based position to center-based position before rendering
-      const centerX = item.x + item.placedW / 2;
-      const centerY = item.y + item.placedH / 2;
-      const centerZ = item.z + item.placedD / 2;
-      
-      // Apply these center values to the Three.js mesh position (scaled)
       const target = [
-        centerX * scale,
-        centerY * scale,
-        centerZ * scale
+        (item.x * scale) + (w / 2),
+        (item.y * scale) + (h / 2),
+        (item.z * scale) + (d / 2)
       ];
       
       const initial = [

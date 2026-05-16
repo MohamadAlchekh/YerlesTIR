@@ -23,7 +23,8 @@ import {
   X,
 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
-import { api } from './api';
+import './App.css';
+import { packItems, CONTAINERS } from './utils/binPacking';
 import Scene3D from './components/Scene3D';
 import { parseCSV } from './utils/csv';
 import { generatePDF } from './utils/pdfExport';
@@ -112,8 +113,7 @@ function groupItemsByCategory(items) {
 function App() {
   const [view, setView] = useState('input');
   const [items, setItems] = useState([]);
-  const [containers, setContainers] = useState([]);
-  const [containerType, setContainerType] = useState('');
+  const [containerType, setContainerType] = useState('20dc');
   const [packResult, setPackResult] = useState(null);
   const [animatingIndex, setAnimatingIndex] = useState(-1);
   const [isPlaying, setIsPlaying] = useState(false);
