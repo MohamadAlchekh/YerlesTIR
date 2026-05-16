@@ -2,7 +2,6 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Edges } from '@react-three/drei';
 import * as THREE from 'three';
-import { CONTAINERS } from '../utils/binPacking';
 
 const generateColor = (name) => {
   let hash = 0;
@@ -146,8 +145,8 @@ const ContainerBox = ({ dims }) => {
   );
 };
 
-export default function Scene3D({ items, containerType, packResult, animatingIndex, onAnimationComplete, isPlaying }) {
-  const container = CONTAINERS[containerType];
+export default function Scene3D({ items, containerDims, packResult, animatingIndex, onAnimationComplete, isPlaying }) {
+  const container = containerDims;
   const scale = 0.01;
   const cw = container.w * scale;
   const ch = container.h * scale;
@@ -165,10 +164,16 @@ export default function Scene3D({ items, containerType, packResult, animatingInd
       const h = item.placedH * scale;
       const d = item.placedD * scale;
       
+      // Convert corner-based position to center-based position before rendering
+      const centerX = item.x + item.placedW / 2;
+      const centerY = item.y + item.placedH / 2;
+      const centerZ = item.z + item.placedD / 2;
+      
+      // Apply these center values to the Three.js mesh position (scaled)
       const target = [
-        (item.x * scale) + (w / 2),
-        (item.y * scale) + (h / 2),
-        (item.z * scale) + (d / 2)
+        centerX * scale,
+        centerY * scale,
+        centerZ * scale
       ];
       
       const initial = [

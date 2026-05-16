@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Package, Truck, Layers, Info, Trash2, Box, BarChart3, Play, Pause, SkipForward, SkipBack, CheckSquare, Upload, ArrowRight, CheckCircle2, Circle } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
-import { packItems, CONTAINERS } from './utils/binPacking';
+import { api } from './api';
 import Scene3D from './components/Scene3D';
 import { parseCSV } from './utils/csv';
 import { generatePDF } from './utils/pdfExport';
@@ -18,7 +18,8 @@ const PRODUCT_CATALOG = [
 function App() {
   const [view, setView] = useState('input'); // input, optimization, operator
   const [items, setItems] = useState([]);
-  const [containerType, setContainerType] = useState('20dc');
+  const [containers, setContainers] = useState([]);
+  const [containerType, setContainerType] = useState('');
   const [packResult, setPackResult] = useState(null);
   
   // Animation State
@@ -34,6 +35,21 @@ function App() {
   });
 
   const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    const fetchContainers = async () => {
+      try {
+        const data = await api.getContainers();
+        setContainers(data);
+        if (data.length > 0) {
+          setContainerType(data[0].type);
+        }
+      } catch (error) {
+        console.error('Failed to load containers:', error);
+      }
+    };
+    fetchContainers();
+  }, []);
 
   // --- Handlers for Input View ---
   const handleAddItem = (e) => {
@@ -100,10 +116,10 @@ function App() {
     setPackResult(null);
   };
 
-  const handlePack = () => {
+  const handlePack = async () => {
     if (items.length === 0) return;
 
-    // Beklenen JSON formatını oluştur ve konsola yazdır (Backend entegrasyonu için)
+    // Beklenen JSON formatını oluştur
     const productMap = {};
     items.forEach(item => {
       // Aynı özellikteki ürünleri grupla
@@ -122,16 +138,48 @@ function App() {
       productMap[key].quantity += 1;
     });
 
-    const payload = { products: Object.values(productMap) };
-    console.log("=== BACKEND'E GÖNDERİLECEK VERİ FORMATI ===");
-    console.log(JSON.stringify(payload, null, 2));
+    const payloadProducts = Object.values(productMap);
 
-    const result = packItems(containerType, items);
-    setPackResult(result);
-    setAnimatingIndex(0);
-    setIsPlaying(true);
-    setCheckedItems(new Set());
-    setView('optimization');
+    try {
+      const response = await api.optimize(containerType, payloadProducts);
+      
+      const unplacedItems = []; // Not provided dynamically by backend yet, assuming empty for visualization
+      
+      const transformedResult = {
+        container: response.container,
+        placed: response.steps.map(step => ({
+          id: uuidv4(),
+          name: step.product_name,
+          w: step.width,
+          h: step.height,
+          d: step.length,
+          placedW: step.width,
+          placedH: step.height,
+          placedD: step.length,
+          x: step.position_x,
+          y: step.position_y,
+          z: step.position_z,
+          weight: 0, 
+          instruction: step.instruction
+        })),
+        unplaced: unplacedItems,
+        stats: {
+          utilization: response.capacity_used_percent,
+          weightUsed: response.weight_used_percent,
+          itemsPlaced: response.total_items_placed,
+          itemsNotPlaced: response.items_not_placed,
+          totalWeight: response.total_weight_used
+        }
+      };
+
+      setPackResult(transformedResult);
+      setAnimatingIndex(0);
+      setIsPlaying(true);
+      setCheckedItems(new Set());
+      setView('optimization');
+    } catch (error) {
+      alert("Hata: " + error.message);
+    }
   };
 
   const exportJSON = () => {
@@ -224,7 +272,12 @@ function App() {
     }
   };
 
-  const totalWeight = packResult?.placed.reduce((acc, curr) => acc + (curr.weight || 0), 0) || 0;
+  const totalWeight = packResult?.stats?.totalWeight || 0;
+  
+  const activeContainer = containers.find(c => c.type === containerType) || null;
+  const activeContainerDims = activeContainer 
+    ? { w: activeContainer.width, h: activeContainer.height, d: activeContainer.length } 
+    : { w: 235, h: 239, d: 589 };
 
   return (
     <div className="app-wrapper">
@@ -249,8 +302,8 @@ function App() {
               <h2><Truck size={18} /> Konteyner Seçimi</h2>
               <div className="form-group">
                 <select value={containerType} onChange={(e) => setContainerType(e.target.value)}>
-                  {Object.entries(CONTAINERS).map(([key, c]) => (
-                    <option key={key} value={key}>{c.name}</option>
+                  {containers.map((c) => (
+                    <option key={c.type} value={c.type}>{c.label}</option>
                   ))}
                 </select>
               </div>
@@ -351,7 +404,18 @@ function App() {
               </div>
               <div className="dashboard-stat">
                 <span>Yerleşen Ürün</span>
-                <span className="badge badge-success">{packResult.placed.length} / {items.length}</span>
+                <span className="badge badge-success">{packResult.stats.itemsPlaced} / {packResult.stats.itemsPlaced + packResult.stats.itemsNotPlaced}</span>
+              </div>
+              <div className="dashboard-stat">
+                <span>Sığmayan Ürün</span>
+                <span style={{ fontWeight: 'bold', color: '#ef4444' }}>{packResult.stats.itemsNotPlaced}</span>
+              </div>
+              <div className="dashboard-stat">
+                <span>Ağırlık Kullanımı</span>
+                <span style={{ fontWeight: 'bold', color: 'var(--accent)' }}>{packResult.stats.weightUsed}%</span>
+              </div>
+              <div className="progress-bar" style={{ marginBottom: '1rem' }}>
+                <div className="progress-fill" style={{ width: `${packResult.stats.weightUsed}%` }}></div>
               </div>
               <div className="dashboard-stat">
                 <span>Toplam Ağırlık</span>
@@ -361,7 +425,7 @@ function App() {
               <button 
                 className="btn btn-secondary" 
                 style={{ marginTop: '1rem', width: '100%', borderColor: 'var(--accent)', color: 'var(--accent)' }}
-                onClick={() => generatePDF(packResult, CONTAINERS[containerType].name, totalWeight)}
+                onClick={() => generatePDF(packResult, activeContainer?.label || 'Konteyner', totalWeight)}
               >
                 İrsaliye PDF İndir
               </button>
@@ -400,7 +464,7 @@ function App() {
               <div className="scene-container">
                 <Scene3D 
                   items={items} 
-                  containerType={containerType} 
+                  containerDims={activeContainerDims} 
                   packResult={packResult} 
                   animatingIndex={animatingIndex} 
                   onAnimationComplete={handleAnimationComplete}
@@ -465,7 +529,7 @@ function App() {
                <div className="scene-container">
                 <Scene3D 
                   items={items} 
-                  containerType={containerType} 
+                  containerDims={activeContainerDims} 
                   packResult={packResult} 
                   animatingIndex={animatingIndex} 
                   onAnimationComplete={() => {}}
