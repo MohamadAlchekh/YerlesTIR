@@ -16,6 +16,8 @@ export const parseCSV = (csvText) => {
         h: parseFloat(parts[3]) || 0,
         d: parseFloat(parts[4]) || 0,
         weight: parseFloat(parts[5]) || 0,
+        category: parts[6] || '',
+        fragile: ['1', 'true', 'evet', 'yes'].includes((parts[7] || '').toLowerCase()),
         stackable: true // Default to stackable for CSV
       });
     }
