@@ -1,14 +1,16 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-
 from models import OptimizeRequest, OptimizeResponse, CONTAINER_SPECS
 from optimizer import run_optimization
+from webhooks import router as webhook_router
 
 app = FastAPI(
     title="LoadMind API",
     description="Konteyner yükleme optimizasyon sistemi",
     version="1.0.0",
 )
+
+app.include_router(webhook_router, prefix="/api/webhook")
 
 app.add_middleware(
     CORSMiddleware,

@@ -47,6 +47,19 @@ class Product(BaseModel):
     weight: float     # kg (tek adet)
     quantity: int     # adet
 
+class OptimizeWebhookRequest(BaseModel):
+    isim: str
+    email: str
+    percentage: float
+
+class IrsaliyeRequest(BaseModel):
+    isim: str
+    surucu_mail: str
+
+class IrsaliyeDetayRequest(BaseModel):
+    sofor_isim: str
+    products: List[Product]
+
 
 class OptimizeRequest(BaseModel):
     container_type: ContainerType   # "20DC", "40DC", "40HC"
