@@ -434,7 +434,7 @@ function App() {
           <button 
             className="btn btn-secondary" 
             style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', fontSize: '0.9rem', color: '#e5eefb', whiteSpace: 'nowrap', width: 'auto' }}
-            onClick={() => window.location.href = '../anasayfa/index.html'}
+            onClick={() => window.location.href = '/anasayfa/index.html'}
           >
             <Home size={16} /> Anasayfa
           </button>
