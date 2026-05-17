@@ -203,21 +203,24 @@ function App() {
       
       const transformedResult = {
         container: response.container,
-        placed: response.steps.map(step => ({
-          id: uuidv4(),
-          name: step.product_name,
-          w: step.width,
-          h: step.height,
-          d: step.length,
-          placedW: step.width,
-          placedH: step.height,
-          placedD: step.length,
-          x: step.position_x,
-          y: step.position_y,
-          z: step.position_z,
-          weight: 0, 
-          instruction: step.instruction
-        })),
+        placed: response.steps.map(step => {
+          const originalProduct = payloadProducts.find(p => p.name === step.product_name && p.width === step.width && p.height === step.height && p.length === step.length) || payloadProducts.find(p => p.name === step.product_name) || { weight: 0 };
+          return {
+            id: uuidv4(),
+            name: step.product_name,
+            w: step.width,
+            h: step.height,
+            d: step.length,
+            placedW: step.width,
+            placedH: step.height,
+            placedD: step.length,
+            x: step.position_x,
+            y: step.position_y,
+            z: step.position_z,
+            weight: originalProduct.weight, 
+            instruction: step.instruction
+          };
+        }),
         unplaced: unplacedItems,
         stats: {
           utilization: response.capacity_used_percent,
