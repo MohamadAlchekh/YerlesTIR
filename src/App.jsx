@@ -798,8 +798,15 @@ function App() {
           const loadedCount = Math.min(packResult.placed.length, Math.max(0, animatingIndex + 1));
           const loadedItems = packResult.placed.slice(0, loadedCount);
 
-          const totalM3 = loadedItems.reduce((sum, item) => sum + (item.placedW * item.placedH * item.placedD) / 1_000_000, 0);
-          const containerM3 = (activeContainerDims.w * activeContainerDims.h * activeContainerDims.d) / 1_000_000;
+          // Use backend's exact container dimensions (from packResult.container) — same values
+          // the optimizer used — so volume % matches the backend's capacity_used_percent exactly.
+          const totalM3 = loadedItems.reduce(
+            (sum, item) => sum + (item.placedW * item.placedH * item.placedD) / 1_000_000,
+            0
+          );
+          const containerM3 =
+            (packResult.container.length * packResult.container.width * packResult.container.height) /
+            1_000_000;
           const volumePct = containerM3 > 0 ? ((totalM3 / containerM3) * 100).toFixed(1) : 0;
           const placedWeight = loadedItems.reduce((sum, item) => sum + (item.weight || 0), 0);
           // Group loaded items by name for summary
