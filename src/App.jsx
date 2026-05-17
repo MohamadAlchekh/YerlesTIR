@@ -434,7 +434,7 @@ function App() {
           <button 
             className="btn btn-secondary" 
             style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', fontSize: '0.9rem', color: '#e5eefb', whiteSpace: 'nowrap', width: 'auto' }}
-            onClick={() => window.location.href = '../anasayfa/index.html'}
+            onClick={() => window.location.href = '/anasayfa/index.html'}
           >
             <Home size={16} /> Anasayfa
           </button>
@@ -794,7 +794,8 @@ function App() {
         {/* --- VIEW 3: OPERATOR TRACKING --- */}
         {view === 'operator' && packResult && (() => {
           // Only count items that have been animated so far (loaded up to current step)
-          const loadedCount = Math.max(0, animatingIndex);
+          // Add +1 because animatingIndex is the index of the last animated/animating item.
+          const loadedCount = Math.min(packResult.placed.length, Math.max(0, animatingIndex + 1));
           const loadedItems = packResult.placed.slice(0, loadedCount);
 
           const totalM3 = loadedItems.reduce((sum, item) => sum + (item.placedW * item.placedH * item.placedD) / 1_000_000, 0);
@@ -822,47 +823,68 @@ function App() {
                 </div>
               </div>
 
-              {/* Summary Card */}
-              <div style={{ background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.2)', borderRadius: '14px', padding: '1rem', marginBottom: '1rem' }}>
-                <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#93c5fd', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <BarChart3 size={13} /> Yükleme Özeti
+              {shipmentConfirmed ? (
+                <div style={{ textAlign: 'center', padding: '2rem 1rem', background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.3)', borderRadius: '14px', marginTop: '1rem' }}>
+                  <CheckCircle2 size={48} color="#22c55e" style={{ margin: '0 auto 1rem' }} />
+                  <div style={{ fontWeight: 800, color: '#22c55e', fontSize: '1.25rem', marginBottom: '0.5rem' }}>Yükleme Tamamlandı!</div>
+                  <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Tüm ürünler araca başarıyla yüklendi. Yeni bir yükleme planına geçebilirsiniz.</div>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem', marginBottom: '0.75rem' }}>
-                  <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '10px', padding: '0.6rem 0.8rem' }}>
-                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '0.2rem' }}>Yüklenen</div>
-                    <div style={{ fontWeight: 800, fontSize: '1.15rem', color: '#22c55e' }}>{loadedCount}</div>
-                    <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>/ {packResult.placed.length} ürün</div>
+              ) : (
+                <>
+                  {/* Summary Card */}
+                  <div style={{ background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.2)', borderRadius: '14px', padding: '1rem', marginBottom: '1rem' }}>
+                    <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#93c5fd', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      <BarChart3 size={13} /> Yükleme Özeti
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem', marginBottom: '0.75rem' }}>
+                      <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '10px', padding: '0.6rem 0.8rem' }}>
+                        <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '0.2rem' }}>Yüklenen</div>
+                        <div style={{ fontWeight: 800, fontSize: '1.15rem', color: '#22c55e' }}>{loadedCount}</div>
+                        <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>/ {packResult.placed.length} ürün</div>
+                      </div>
+                      <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '10px', padding: '0.6rem 0.8rem' }}>
+                        <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '0.2rem' }}>Hacim Kullanımı</div>
+                        <div style={{ fontWeight: 800, fontSize: '1.15rem', color: '#60a5fa' }}>{volumePct}%</div>
+                        <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>{totalM3.toFixed(2)} / {containerM3.toFixed(2)} m³</div>
+                      </div>
+                      <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '10px', padding: '0.6rem 0.8rem' }}>
+                        <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '0.2rem' }}>Toplam Ağırlık</div>
+                        <div style={{ fontWeight: 800, fontSize: '1.15rem', color: '#f97316' }}>{placedWeight > 0 ? placedWeight : '—'}</div>
+                        <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>kg</div>
+                      </div>
+                      <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '10px', padding: '0.6rem 0.8rem' }}>
+                        <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '0.2rem' }}>Toplam Hacim</div>
+                        <div style={{ fontWeight: 800, fontSize: '1.15rem', color: '#a78bfa' }}>{totalM3.toFixed(2)}</div>
+                        <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>m³</div>
+                      </div>
+                    </div>
+                    {/* Product type breakdown */}
+                    <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '0.65rem' }}>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '0.4rem' }}>
+                        {loadedCount > 0 ? 'Yüklenen Ürün Dağılımı:' : 'Henüz ürün yüklenmedi'}
+                      </div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
+                        {Object.entries(groupMap).map(([name, count]) => (
+                          <span key={name} style={{ fontSize: '0.68rem', background: 'rgba(96,165,250,0.12)', border: '1px solid rgba(96,165,250,0.2)', borderRadius: '999px', padding: '0.15rem 0.55rem', color: '#93c5fd' }}>
+                            {name} ×{count}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
                   </div>
-                  <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '10px', padding: '0.6rem 0.8rem' }}>
-                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '0.2rem' }}>Hacim Kullanımı</div>
-                    <div style={{ fontWeight: 800, fontSize: '1.15rem', color: '#60a5fa' }}>{volumePct}%</div>
-                    <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>{totalM3.toFixed(2)} / {containerM3.toFixed(2)} m³</div>
+
+                  {/* Finish Loading Button */}
+                  <div style={{ marginTop: 'auto', paddingTop: '1rem' }}>
+                    <button
+                      className="btn"
+                      style={{ width: '100%', background: 'linear-gradient(135deg, #16a34a, #15803d)', boxShadow: '0 4px 20px rgba(22,163,74,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', fontSize: '1rem', fontWeight: 700 }}
+                      onClick={() => setShipmentConfirmed(true)}
+                    >
+                      <CheckCircle2 size={18} /> Yüklemeyi Bitir
+                    </button>
                   </div>
-                  <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '10px', padding: '0.6rem 0.8rem' }}>
-                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '0.2rem' }}>Toplam Ağırlık</div>
-                    <div style={{ fontWeight: 800, fontSize: '1.15rem', color: '#f97316' }}>{placedWeight > 0 ? placedWeight : '—'}</div>
-                    <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>kg</div>
-                  </div>
-                  <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '10px', padding: '0.6rem 0.8rem' }}>
-                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '0.2rem' }}>Toplam Hacim</div>
-                    <div style={{ fontWeight: 800, fontSize: '1.15rem', color: '#a78bfa' }}>{totalM3.toFixed(2)}</div>
-                    <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>m³</div>
-                  </div>
-                </div>
-                {/* Product type breakdown */}
-                <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '0.65rem' }}>
-                  <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '0.4rem' }}>
-                    {loadedCount > 0 ? 'Yüklenen Ürün Dağılımı:' : 'Henüz ürün yüklenmedi'}
-                  </div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
-                    {Object.entries(groupMap).map(([name, count]) => (
-                      <span key={name} style={{ fontSize: '0.68rem', background: 'rgba(96,165,250,0.12)', border: '1px solid rgba(96,165,250,0.2)', borderRadius: '999px', padding: '0.15rem 0.55rem', color: '#93c5fd' }}>
-                        {name} ×{count}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
+                </>
+              )}
             </div>
 
             <div className="main-view glass-panel">
@@ -871,7 +893,7 @@ function App() {
                   items={items}
                   containerDims={activeContainerDims}
                   packResult={packResult}
-                  animatingIndex={animatingIndex}
+                  animatingIndex={loadedCount}
                   onAnimationComplete={() => {}}
                   isPlaying={false}
                   playbackSpeed={1}
