@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Package, Truck, Layers, Info, Trash2, Box, BarChart3, Play, Pause, SkipForward, SkipBack, CheckSquare, Upload, ArrowRight, CheckCircle2, Circle, Home, AlertTriangle, X, FastForward, ScanLine, User } from 'lucide-react';
+import { Package, Truck, Layers, Info, Trash2, Box, BarChart3, Play, Pause, SkipForward, SkipBack, CheckSquare, Upload, ArrowRight, CheckCircle2, Circle, Home, AlertTriangle, X, FastForward, ScanLine, User, ShieldCheck, ClipboardList } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { api } from './api';
 import Scene3D from './components/Scene3D';
@@ -42,6 +42,8 @@ function App() {
   
   // Operator State
   const [checkedItems, setCheckedItems] = useState(new Set());
+  const [showFinalConfirm, setShowFinalConfirm] = useState(false);
+  const [shipmentConfirmed, setShipmentConfirmed] = useState(false);
 
   // Error State
   const [errorMsg, setErrorMsg] = useState(null);
@@ -429,7 +431,7 @@ function App() {
           <div className="logo-icon"><Layers size={20} /></div>
           <div>
             <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', letterSpacing: '1px', fontWeight: 600, textTransform: 'uppercase' }}>INDUSTRY 4.0</div>
-            <h1 style={{ marginBottom: 0, fontSize: '1.2rem', color: 'white', background: 'none', WebkitTextFillColor: 'initial' }}>CargoVision AI</h1>
+            <h1 style={{ marginBottom: 0, fontSize: '1.2rem', color: 'white', background: 'none', WebkitTextFillColor: 'initial' }}>YerlesTIR</h1>
           </div>
         </div>
         <div className="nav-buttons" style={{ flex: 1, display: 'flex', justifyContent: 'center', gap: '0.5rem' }}>
@@ -687,7 +689,7 @@ function App() {
         {/* --- VIEW 2: OPTIMIZATION RESULTS --- */}
         {view === 'optimization' && packResult && (
           <>
-            <div className="sidebar glass-panel">
+            <div className="sidebar glass-panel" style={{ display: 'flex', flexDirection: 'column' }}>
               <h2><BarChart3 size={18} /> Yerleşim Özeti</h2>
               <div className="dashboard-stat">
                 <span>Kapasite Kullanımı</span>
@@ -783,6 +785,17 @@ function App() {
                   </div>
                 )}
               </div>
+
+              {/* Next Step Button - pinned to bottom */}
+              <div style={{ marginTop: 'auto', paddingTop: '1rem' }}>
+                <button
+                  className="btn"
+                  style={{ width: '100%', background: 'linear-gradient(135deg, #16a34a, #15803d)', boxShadow: '0 4px 20px rgba(22,163,74,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', fontSize: '1rem', fontWeight: 700 }}
+                  onClick={() => setView('operator')}
+                >
+                  <ClipboardList size={18} /> Operatör Ekranına Geç <ArrowRight size={16} />
+                </button>
+              </div>
             </div>
 
             <div className="main-view glass-panel">
@@ -802,70 +815,247 @@ function App() {
         )}
 
         {/* --- VIEW 3: OPERATOR TRACKING --- */}
-        {view === 'operator' && packResult && (
+        {view === 'operator' && packResult && (() => {
+          const totalM3 = packResult.placed.reduce((sum, item) => sum + (item.placedW * item.placedH * item.placedD) / 1_000_000, 0);
+          const containerM3 = (activeContainerDims.w * activeContainerDims.h * activeContainerDims.d) / 1_000_000;
+          const volumePct = containerM3 > 0 ? ((totalM3 / containerM3) * 100).toFixed(1) : 0;
+          const placedWeight = packResult.placed.reduce((sum, item) => sum + (item.weight || 0), 0);
+          // Group placed items by name for summary
+          const groupMap = {};
+          packResult.placed.forEach(item => {
+            groupMap[item.name] = (groupMap[item.name] || 0) + 1;
+          });
+          return (
           <>
-            <div className="sidebar glass-panel" style={{ width: '450px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                <h2 style={{ marginBottom: 0 }}><CheckSquare size={18} /> Operatör İşlem Listesi</h2>
-                <button 
-                  className="btn btn-secondary" 
-                  style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', width: 'auto' }}
-                  onClick={handleToggleAllChecks}
-                >
-                  {checkedItems.size === packResult.placed.length ? 'Tümünü Kaldır' : 'Tümünü Seç'}
-                </button>
-              </div>
-              
-              <div style={{ marginBottom: '1.5rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.9rem' }}>
-                  <span>İlerleme:</span>
-                  <span style={{ fontWeight: 'bold', color: 'var(--success)' }}>
-                    {Math.round((checkedItems.size / packResult.placed.length) * 100)}%
-                  </span>
+            <div className="sidebar glass-panel" style={{ width: '420px', display: 'flex', flexDirection: 'column' }}>
+              {/* Header */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+                <div style={{ background: 'linear-gradient(135deg,rgba(59,130,246,0.25),rgba(249,115,22,0.18))', borderRadius: '12px', padding: '0.6rem', display: 'flex' }}>
+                  <ClipboardList size={22} color="#93c5fd" />
                 </div>
-                <div className="progress-bar" style={{ height: '8px' }}>
-                  <div className="progress-fill" style={{ width: `${(checkedItems.size / packResult.placed.length) * 100}%`, background: 'var(--success)' }}></div>
+                <div>
+                  <h2 style={{ margin: 0, fontSize: '1.05rem' }}>Operatör Onay Listesi</h2>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.1rem' }}>Her ürünü yükledikçe onaylayın</div>
                 </div>
               </div>
 
-              <div className="checklist-container">
+              {/* Summary Card */}
+              <div style={{ background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.2)', borderRadius: '14px', padding: '1rem', marginBottom: '1rem' }}>
+                <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#93c5fd', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <BarChart3 size={13} /> Yükleme Özeti
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem', marginBottom: '0.75rem' }}>
+                  <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '10px', padding: '0.6rem 0.8rem' }}>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '0.2rem' }}>Yüklenen</div>
+                    <div style={{ fontWeight: 800, fontSize: '1.15rem', color: '#22c55e' }}>{packResult.placed.length}</div>
+                    <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>/ {packResult.placed.length + (packResult.unplaced?.length || 0)} ürün</div>
+                  </div>
+                  <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '10px', padding: '0.6rem 0.8rem' }}>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '0.2rem' }}>Hacim Kullanımı</div>
+                    <div style={{ fontWeight: 800, fontSize: '1.15rem', color: '#60a5fa' }}>{volumePct}%</div>
+                    <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>{totalM3.toFixed(2)} / {containerM3.toFixed(2)} m³</div>
+                  </div>
+                  <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '10px', padding: '0.6rem 0.8rem' }}>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '0.2rem' }}>Toplam Ağırlık</div>
+                    <div style={{ fontWeight: 800, fontSize: '1.15rem', color: '#f97316' }}>{placedWeight > 0 ? placedWeight : totalWeight}</div>
+                    <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>kg</div>
+                  </div>
+                  <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '10px', padding: '0.6rem 0.8rem' }}>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '0.2rem' }}>Toplam Hacim</div>
+                    <div style={{ fontWeight: 800, fontSize: '1.15rem', color: '#a78bfa' }}>{totalM3.toFixed(2)}</div>
+                    <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>m³</div>
+                  </div>
+                </div>
+                {/* Product type breakdown */}
+                <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '0.65rem' }}>
+                  <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '0.4rem' }}>Ürün Dağılımı:</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
+                    {Object.entries(groupMap).map(([name, count]) => (
+                      <span key={name} style={{ fontSize: '0.68rem', background: 'rgba(96,165,250,0.12)', border: '1px solid rgba(96,165,250,0.2)', borderRadius: '999px', padding: '0.15rem 0.55rem', color: '#93c5fd' }}>
+                        {name} ×{count}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              {/* Progress */}
+              <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)', borderRadius: '14px', padding: '1rem', marginBottom: '1rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
+                  <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Yükleme İlerlemesi</span>
+                  <span style={{ fontWeight: 800, fontSize: '1.1rem', color: checkedItems.size === packResult.placed.length ? '#22c55e' : '#60a5fa' }}>
+                    {checkedItems.size} / {packResult.placed.length}
+                  </span>
+                </div>
+                <div className="progress-bar" style={{ height: '10px', borderRadius: '999px' }}>
+                  <div className="progress-fill" style={{ width: `${(checkedItems.size / packResult.placed.length) * 100}%`, background: checkedItems.size === packResult.placed.length ? 'linear-gradient(90deg,#22c55e,#16a34a)' : 'linear-gradient(90deg,#3b82f6,#f97316)', transition: 'width 0.4s ease' }}></div>
+                </div>
+                {checkedItems.size === packResult.placed.length && (
+                  <div style={{ marginTop: '0.6rem', fontSize: '0.82rem', color: '#22c55e', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <CheckCircle2 size={14} /> Tüm ürünler yüklendi! Son onayı verebilirsiniz.
+                  </div>
+                )}
+              </div>
+
+              {/* Toolbar */}
+              <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                <button
+                  className="btn btn-secondary"
+                  style={{ flex: 1, padding: '0.45rem', fontSize: '0.78rem' }}
+                  onClick={handleToggleAllChecks}
+                >
+                  {checkedItems.size === packResult.placed.length ? 'Tümünü Kaldır' : 'Tümünü Onayla'}
+                </button>
+              </div>
+
+              {/* Checklist */}
+              <div className="checklist-container" style={{ flex: 1 }}>
                 {packResult.placed.map((item, idx) => (
-                  <div 
-                    key={item.id + idx} 
-                    className={`checklist-item ${checkedItems.has(idx) ? 'checked' : ''} ${animatingIndex === idx ? 'active' : ''}`}
+                  <div
+                    key={item.id + idx}
                     onClick={() => toggleCheck(idx)}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: '0.85rem',
+                      padding: '0.75rem 0.9rem',
+                      borderRadius: '12px',
+                      marginBottom: '0.45rem',
+                      cursor: 'pointer',
+                      border: checkedItems.has(idx)
+                        ? '1px solid rgba(34,197,94,0.3)'
+                        : animatingIndex === idx
+                        ? '1px solid rgba(96,165,250,0.4)'
+                        : '1px solid var(--glass-border)',
+                      background: checkedItems.has(idx)
+                        ? 'rgba(34,197,94,0.07)'
+                        : animatingIndex === idx
+                        ? 'rgba(59,130,246,0.09)'
+                        : 'rgba(255,255,255,0.02)',
+                      transition: 'all 0.2s',
+                    }}
                   >
-                    <div className="check-icon">
-                      {checkedItems.has(idx) ? <CheckCircle2 size={24} color="var(--success)" /> : <Circle size={24} color="var(--text-muted)" />}
+                    <div style={{ flexShrink: 0 }}>
+                      {checkedItems.has(idx)
+                        ? <CheckCircle2 size={22} color="#22c55e" />
+                        : <Circle size={22} color="var(--text-muted)" />}
                     </div>
-                    <div className="check-info">
-                      <div style={{ fontWeight: 'bold', fontSize: '1rem', color: checkedItems.has(idx) ? 'var(--text-muted)' : 'var(--text-main)', textDecoration: checkedItems.has(idx) ? 'line-through' : 'none' }}>
-                        {idx + 1}. {item.name}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{
+                        fontWeight: 600, fontSize: '0.9rem',
+                        color: checkedItems.has(idx) ? 'var(--text-muted)' : 'var(--text-main)',
+                        textDecoration: checkedItems.has(idx) ? 'line-through' : 'none',
+                        whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
+                      }}>
+                        <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem', marginRight: '0.35rem' }}>#{idx + 1}</span>
+                        {item.name}
                       </div>
-                      <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                        {item.w}x{item.h}x{item.d} cm | Konum: ({Math.round(item.x)}, {Math.round(item.y)}, {Math.round(item.z)})
+                      <div style={{ fontSize: '0.73rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
+                        {item.w}×{item.h}×{item.d} cm &nbsp;|&nbsp; Konum: ({Math.round(item.x)}, {Math.round(item.y)}, {Math.round(item.z)})
                       </div>
                     </div>
+                    {checkedItems.has(idx) && (
+                      <span style={{ fontSize: '0.68rem', color: '#22c55e', background: 'rgba(34,197,94,0.12)', padding: '0.15rem 0.5rem', borderRadius: '999px', flexShrink: 0 }}>✓ Yüklendi</span>
+                    )}
                   </div>
                 ))}
+              </div>
+
+              {/* Final Confirm Button */}
+              <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--glass-border)' }}>
+                {shipmentConfirmed ? (
+                  <div style={{ textAlign: 'center', padding: '1rem', background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.3)', borderRadius: '14px' }}>
+                    <CheckCircle2 size={32} color="#22c55e" style={{ marginBottom: '0.5rem' }} />
+                    <div style={{ fontWeight: 700, color: '#22c55e', fontSize: '1rem' }}>Sevkiyat Onaylandı!</div>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>Yükleme tamamlandı ve kaydedildi.</div>
+                  </div>
+                ) : (
+                  <button
+                    className="btn"
+                    disabled={checkedItems.size < packResult.placed.length}
+                    style={{
+                      width: '100%', fontSize: '0.95rem', fontWeight: 700,
+                      background: checkedItems.size === packResult.placed.length
+                        ? 'linear-gradient(135deg,#16a34a,#15803d)'
+                        : 'rgba(255,255,255,0.05)',
+                      boxShadow: checkedItems.size === packResult.placed.length ? '0 4px 20px rgba(22,163,74,0.35)' : 'none',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
+                      opacity: checkedItems.size < packResult.placed.length ? 0.5 : 1,
+                      border: checkedItems.size === packResult.placed.length ? '1px solid rgba(34,197,94,0.4)' : '1px solid var(--glass-border)'
+                    }}
+                    onClick={() => setShowFinalConfirm(true)}
+                  >
+                    <ShieldCheck size={18} />
+                    {checkedItems.size < packResult.placed.length
+                      ? `Önce tüm ürünleri onaylayın (${packResult.placed.length - checkedItems.size} kaldı)`
+                      : 'Sevkiyatı Onayla ve Tamamla'}
+                  </button>
+                )}
               </div>
             </div>
 
             <div className="main-view glass-panel">
-               <div className="scene-container">
-                <Scene3D 
-                  items={items} 
-                  containerDims={activeContainerDims} 
-                  packResult={packResult} 
-                  animatingIndex={animatingIndex} 
+              <div className="scene-container">
+                <Scene3D
+                  items={items}
+                  containerDims={activeContainerDims}
+                  packResult={packResult}
+                  animatingIndex={animatingIndex}
                   onAnimationComplete={() => {}}
                   isPlaying={false}
                   playbackSpeed={1}
                 />
               </div>
             </div>
+
+            {/* Final Confirmation Modal */}
+            {showFinalConfirm && (
+              <div style={{
+                position: 'fixed', inset: 0, zIndex: 200,
+                background: 'rgba(2,6,23,0.82)',
+                backdropFilter: 'blur(8px)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center'
+              }}>
+                <div style={{
+                  background: 'linear-gradient(180deg,rgba(8,17,32,0.98),rgba(3,8,20,0.96))',
+                  border: '1px solid rgba(34,197,94,0.3)',
+                  borderRadius: '24px',
+                  padding: '2.5rem',
+                  width: 'min(480px, 90vw)',
+                  boxShadow: '0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(34,197,94,0.1)',
+                  textAlign: 'center'
+                }}>
+                  <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: 'rgba(34,197,94,0.15)', border: '2px solid rgba(34,197,94,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem' }}>
+                    <ShieldCheck size={36} color="#22c55e" />
+                  </div>
+                  <h2 style={{ margin: '0 0 0.75rem', fontSize: '1.4rem', color: 'white' }}>Son Onay</h2>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: 1.6, marginBottom: '0.5rem' }}>
+                    <strong style={{ color: 'var(--text-main)' }}>{packResult.placed.length} ürün</strong> yüklendiğini ve doğrulandığını onaylıyor musunuz?
+                  </p>
+                  {driverInfo.name && (
+                    <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '10px', padding: '0.75rem 1rem', marginBottom: '1.5rem', fontSize: '0.85rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                      <User size={14} /> Şoför: <strong style={{ color: 'var(--text-main)' }}>{driverInfo.name}</strong>
+                    </div>
+                  )}
+                  <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem' }}>
+                    <button
+                      className="btn btn-secondary"
+                      style={{ flex: 1 }}
+                      onClick={() => setShowFinalConfirm(false)}
+                    >
+                      <X size={16} /> İptal
+                    </button>
+                    <button
+                      className="btn"
+                      style={{ flex: 2, background: 'linear-gradient(135deg,#16a34a,#15803d)', boxShadow: '0 8px 24px rgba(22,163,74,0.4)', fontWeight: 700, fontSize: '1rem' }}
+                      onClick={() => { setShipmentConfirmed(true); setShowFinalConfirm(false); }}
+                    >
+                      <ShieldCheck size={18} /> Evet, Onayla
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </>
-        )}
+          );
+        })()}
       </div>
       {isScannerOpen && (
         <BarcodeScanner 
