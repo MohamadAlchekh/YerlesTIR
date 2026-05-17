@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Package, Truck, Layers, Info, Trash2, Box, BarChart3, Play, Pause, SkipForward, SkipBack, CheckSquare, Upload, ArrowRight, CheckCircle2, Circle } from 'lucide-react';
+import { Package, Truck, Layers, Info, Trash2, Box, BarChart3, Play, Pause, SkipForward, SkipBack, CheckSquare, Upload, ArrowRight, CheckCircle2, Circle, Home, AlertTriangle, X, FastForward, ScanLine, User } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { api } from './api';
 import Scene3D from './components/Scene3D';
+import BarcodeScanner from './components/BarcodeScanner';
 import { parseCSV } from './utils/csv';
 import { generatePDF } from './utils/pdfExport';
 
@@ -16,25 +17,85 @@ const PRODUCT_CATALOG = [
 ];
 
 function App() {
-  const [view, setView] = useState('input'); // input, optimization, operator
-  const [items, setItems] = useState([]);
+  const [view, setView] = useState(() => {
+    const saved = localStorage.getItem('cv_view');
+    return saved || 'input';
+  });
+  const [items, setItems] = useState(() => {
+    const saved = localStorage.getItem('cv_items');
+    return saved ? JSON.parse(saved) : [];
+  });
   const [containers, setContainers] = useState([]);
-  const [containerType, setContainerType] = useState('');
-  const [packResult, setPackResult] = useState(null);
+  const [containerType, setContainerType] = useState(() => {
+    const saved = localStorage.getItem('cv_container');
+    return saved || '';
+  });
+  const [packResult, setPackResult] = useState(() => {
+    const saved = localStorage.getItem('cv_packResult');
+    return saved ? JSON.parse(saved) : null;
+  });
   
   // Animation State
   const [animatingIndex, setAnimatingIndex] = useState(-1);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [playbackSpeed, setPlaybackSpeed] = useState(1);
   
   // Operator State
   const [checkedItems, setCheckedItems] = useState(new Set());
+
+  // Error State
+  const [errorMsg, setErrorMsg] = useState(null);
+  const showError = (msg) => {
+    setErrorMsg(msg);
+    setTimeout(() => setErrorMsg(null), 5000);
+  };
 
   // Form State
   const [newItem, setNewItem] = useState({
     name: '', w: '', h: '', d: '', weight: '', stackable: true, count: 1
   });
 
+  // Selection and Grouping States
+  const [expandedGroups, setExpandedGroups] = useState(new Set());
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedItems, setSelectedItems] = useState(new Set());
+  
+  // Scanner State
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
+  
+  // Driver State
+  const [driverInfo, setDriverInfo] = useState(() => {
+    const saved = localStorage.getItem('cv_driver');
+    return saved ? JSON.parse(saved) : { name: '', email: '' };
+  });
+
   const fileInputRef = useRef(null);
+
+  // Persist State to LocalStorage
+  useEffect(() => {
+    localStorage.setItem('cv_driver', JSON.stringify(driverInfo));
+  }, [driverInfo]);
+  useEffect(() => {
+    localStorage.setItem('cv_items', JSON.stringify(items));
+  }, [items]);
+
+  useEffect(() => {
+    if (containerType) {
+      localStorage.setItem('cv_container', containerType);
+    }
+  }, [containerType]);
+
+  useEffect(() => {
+    if (packResult) {
+      localStorage.setItem('cv_packResult', JSON.stringify(packResult));
+    } else {
+      localStorage.removeItem('cv_packResult');
+    }
+  }, [packResult]);
+
+  useEffect(() => {
+    localStorage.setItem('cv_view', view);
+  }, [view]);
 
   useEffect(() => {
     const fetchContainers = async () => {
@@ -63,12 +124,7 @@ function App() {
 
     const maxDimension = 1205; 
     if (w > maxDimension || h > maxDimension || d > maxDimension) {
-      alert("Hata: Girdiğiniz ürün ölçüleri konteynere sığmayacak kadar büyük!");
-      return;
-    }
-
-    if (count > 200 || items.length + count > 300) {
-      alert("Hata: Performans sorunu yaşamamak için toplam ürün sayısını 300 ile sınırlandırınız.");
+      showError("Girdiğiniz ürün ölçüleri konteynere sığmayacak kadar büyük!");
       return;
     }
 
@@ -94,6 +150,7 @@ function App() {
     const reader = new FileReader();
     reader.onload = (evt) => {
       const parsed = parseCSV(evt.target.result);
+      
       const newItems = [];
       parsed.forEach(p => {
         for(let i = 0; i < p.count; i++) {
@@ -114,6 +171,24 @@ function App() {
   const handleRemoveItem = (id) => {
     setItems(prev => prev.filter(item => item.id !== id));
     setPackResult(null);
+  };
+
+  const handleScanResult = (decodedText) => {
+    setIsScannerOpen(false);
+    try {
+      const data = JSON.parse(decodedText);
+      setNewItem({
+        ...newItem,
+        name: data.name || data.isim || data.ad || decodedText,
+        w: data.w || data.en || data.width || '',
+        h: data.h || data.boy || data.height || '',
+        d: data.d || data.der || data.derinlik || data.depth || '',
+        weight: data.weight || data.agirlik || '',
+        count: data.count || data.adet || 1
+      });
+    } catch {
+      setNewItem({ ...newItem, name: decodedText });
+    }
   };
 
   const handlePack = async () => {
@@ -139,6 +214,9 @@ function App() {
     });
 
     const payloadProducts = Object.values(productMap);
+
+    // Backend isteği öncesi error reset
+    setErrorMsg(null);
 
     try {
       const response = await api.optimize(containerType, payloadProducts);
@@ -178,7 +256,7 @@ function App() {
       setCheckedItems(new Set());
       setView('optimization');
     } catch (error) {
-      alert("Hata: " + error.message);
+      showError("Hata: " + error.message);
     }
   };
 
@@ -279,36 +357,170 @@ function App() {
     ? { w: activeContainer.width, h: activeContainer.height, d: activeContainer.length } 
     : { w: 235, h: 239, d: 589 };
 
+  // --- Helpers for Grouping and Selection ---
+  const groupedItems = {};
+  items.forEach(item => {
+    const key = `${item.name}_${item.w}_${item.h}_${item.d}_${item.weight}`;
+    if (!groupedItems[key]) {
+      groupedItems[key] = {
+        key,
+        name: item.name,
+        w: item.w, h: item.h, d: item.d, weight: item.weight,
+        items: []
+      };
+    }
+    groupedItems[key].items.push(item);
+  });
+
+  const toggleGroup = (key) => {
+    const newExp = new Set(expandedGroups);
+    if (newExp.has(key)) newExp.delete(key);
+    else newExp.add(key);
+    setExpandedGroups(newExp);
+  };
+
+  const toggleSelection = (id) => {
+    const newSel = new Set(selectedItems);
+    if (newSel.has(id)) newSel.delete(id);
+    else newSel.add(id);
+    setSelectedItems(newSel);
+  };
+
+  const toggleGroupSelection = (groupKey, itemsInGroup) => {
+    const newSel = new Set(selectedItems);
+    const allSelected = itemsInGroup.every(i => newSel.has(i.id));
+    if (allSelected) {
+      itemsInGroup.forEach(i => newSel.delete(i.id));
+    } else {
+      itemsInGroup.forEach(i => newSel.add(i.id));
+    }
+    setSelectedItems(newSel);
+  };
+
+  const handleDeleteSelected = () => {
+    setItems(prev => prev.filter(item => !selectedItems.has(item.id)));
+    setSelectedItems(new Set());
+    setSelectionMode(false);
+    setPackResult(null);
+  };
+
+  const handleNewPlan = () => {
+    setItems([]);
+    setPackResult(null);
+    setView('input');
+    setAnimatingIndex(-1);
+    setIsPlaying(false);
+    setCheckedItems(new Set());
+    setSelectionMode(false);
+    setSelectedItems(new Set());
+    
+    // Clear from localStorage
+    localStorage.removeItem('cv_items');
+    localStorage.removeItem('cv_packResult');
+    localStorage.removeItem('cv_view');
+    // We intentionally keep cv_container and cv_driver saved as preferences
+  };
+
   return (
     <div className="app-wrapper">
       {/* TOP NAVIGATION */}
-      <div className="top-nav glass-panel">
-        <div className="logo-container" style={{ margin: 0 }}>
+      <div className="top-nav glass-panel" style={{ display: 'flex', justifyContent: 'space-between' }}>
+        <div className="logo-container" style={{ margin: 0, width: '280px' }}>
           <div className="logo-icon"><Layers size={20} /></div>
-          <h1 style={{ marginBottom: 0, fontSize: '1.2rem', marginRight: '2rem' }}>Diginova BinPacker</h1>
+          <div>
+            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', letterSpacing: '1px', fontWeight: 600, textTransform: 'uppercase' }}>INDUSTRY 4.0</div>
+            <h1 style={{ marginBottom: 0, fontSize: '1.2rem', color: 'white', background: 'none', WebkitTextFillColor: 'initial' }}>CargoVision AI</h1>
+          </div>
         </div>
-        <div className="nav-buttons">
+        <div className="nav-buttons" style={{ flex: 1, display: 'flex', justifyContent: 'center', gap: '0.5rem' }}>
           <button className={`nav-btn ${view === 'input' ? 'active' : ''}`} onClick={() => setView('input')}>1. Veri Girişi</button>
           <button className={`nav-btn ${view === 'optimization' ? 'active' : ''}`} disabled={!packResult} onClick={() => setView('optimization')}>2. Optimizasyon Sonucu</button>
           <button className={`nav-btn ${view === 'operator' ? 'active' : ''}`} disabled={!packResult} onClick={() => setView('operator')}>3. Operatör Ekranı</button>
         </div>
+        <div style={{ display: 'flex', gap: '0.75rem', width: 'auto', minWidth: '320px', justifyContent: 'flex-end' }}>
+          <button 
+            className="btn btn-orange" 
+            style={{ 
+              padding: '0.5rem 1rem', 
+              fontSize: '0.9rem', 
+              whiteSpace: 'nowrap',
+              width: 'auto' 
+            }}
+            onClick={handleNewPlan}
+          >
+            Yeni Plan Dene
+          </button>
+          <button 
+            className="btn btn-secondary" 
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', fontSize: '0.9rem', color: '#e5eefb', whiteSpace: 'nowrap', width: 'auto' }}
+            onClick={() => window.location.href = '../anasayfa/index.html'}
+          >
+            <Home size={16} /> Anasayfa
+          </button>
+        </div>
       </div>
 
-      <div className="app-container">
+      {errorMsg && (
+        <div style={{ padding: '0 1rem' }}>
+          <div className="error-banner animate-fade-in">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <AlertTriangle size={18} color="#fca5a5" />
+              <span>{errorMsg}</span>
+            </div>
+            <button className="delete-btn" onClick={() => setErrorMsg(null)}><X size={18} color="#fca5a5" /></button>
+          </div>
+        </div>
+      )}
+
+      <div className="app-container" style={{ paddingTop: errorMsg ? '0.5rem' : '1rem' }}>
         {/* --- VIEW 1: INPUT --- */}
         {view === 'input' && (
           <>
             <div className="sidebar glass-panel" style={{ width: '400px' }}>
-              <h2><Truck size={18} /> Konteyner Seçimi</h2>
-              <div className="form-group">
-                <select value={containerType} onChange={(e) => setContainerType(e.target.value)}>
-                  {containers.map((c) => (
-                    <option key={c.type} value={c.type}>{c.label}</option>
-                  ))}
-                </select>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <div>
+                  <h2 style={{ marginBottom: '0.5rem' }}><User size={18} /> Şoför Bilgileri</h2>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <input 
+                      type="text" 
+                      placeholder="Şoför Adı Soyadı" 
+                      value={driverInfo.name} 
+                      onChange={(e) => setDriverInfo({ ...driverInfo, name: e.target.value })} 
+                    />
+                    <input 
+                      type="email" 
+                      placeholder="Şoför Email Adresi" 
+                      value={driverInfo.email} 
+                      onChange={(e) => setDriverInfo({ ...driverInfo, email: e.target.value })} 
+                      style={{ marginTop: '0.5rem' }}
+                    />
+                  </div>
+                </div>
+
+                <hr className="divider" style={{ margin: 0 }} />
+
+                <div>
+                  <h2 style={{ marginBottom: '0.5rem' }}><Truck size={18} /> Konteyner Seçimi</h2>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <select value={containerType} onChange={(e) => setContainerType(e.target.value)}>
+                      {containers.map((c) => (
+                        <option key={c.type} value={c.type}>{c.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
               </div>
 
               <hr className="divider" />
+
+              <button 
+                type="button" 
+                className="btn" 
+                style={{ backgroundColor: 'rgba(37, 150, 190, 1)', borderColor: 'rgba(37, 150, 190, 1)', marginBottom: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', width: '100%' }}
+                onClick={() => setIsScannerOpen(true)}
+              >
+                <ScanLine size={18} /> Barkod Okuyucu
+              </button>
 
               <h2><Box size={18} /> Ürün Ekle</h2>
               <form onSubmit={handleAddItem}>
@@ -322,7 +534,7 @@ function App() {
                 </div>
                 <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
                   <input type="number" placeholder="Ağırlık (kg)" min="0" value={newItem.weight} onChange={e => setNewItem({...newItem, weight: e.target.value})} className="flex-1" />
-                  <input type="number" placeholder="Adet" min="1" required value={newItem.count} onChange={e => setNewItem({...newItem, count: parseInt(e.target.value) || 1})} className="flex-1" />
+                  <input type="number" placeholder="Adet" min="1" required value={newItem.count} onChange={e => setNewItem({...newItem, count: e.target.value === '' ? '' : parseInt(e.target.value)})} className="flex-1" />
                 </div>
                 <label className="checkbox-group" style={{ marginTop: '1rem' }}>
                   <input type="checkbox" checked={newItem.stackable} onChange={e => setNewItem({...newItem, stackable: e.target.checked})} />
@@ -370,20 +582,102 @@ function App() {
             </div>
 
             <div className="main-view glass-panel" style={{ padding: '1.5rem', overflowY: 'auto' }}>
-              <h2><Package size={18} /> Eklenen Ürünler ({items.length})</h2>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                <h2 style={{ marginBottom: 0 }}><Package size={18} /> Eklenen Ürünler ({items.length})</h2>
+                {items.length > 0 && (
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    {selectionMode && selectedItems.size > 0 && (
+                      <button className="btn btn-danger" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', width: 'auto' }} onClick={handleDeleteSelected}>
+                        Seçilenleri Sil ({selectedItems.size})
+                      </button>
+                    )}
+                    <button 
+                      className="btn btn-secondary" 
+                      style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', width: 'auto' }}
+                      onClick={() => {
+                        setSelectionMode(!selectionMode);
+                        if (selectionMode) setSelectedItems(new Set());
+                      }}
+                    >
+                      {selectionMode ? 'İptal' : 'Ürün Seç'}
+                    </button>
+                  </div>
+                )}
+              </div>
+              
               {items.length === 0 ? (
                 <div className="empty-state">Henüz ürün eklenmedi. Örnek CSV formatı: <br/><br/><code>isim, adet, en, boy, derinlik, ağırlık</code></div>
               ) : (
-                <div className="items-grid">
-                  {items.map((item, idx) => (
-                    <div key={item.id} className="item-card animate-fade-in" style={{ animationDelay: `${Math.min(idx * 0.02, 1)}s` }}>
-                      <div className="item-info">
-                        <span className="item-name">{item.name}</span>
-                        <span className="item-dims">{item.w}x{item.h}x{item.d} cm {item.weight > 0 ? `| ${item.weight}kg` : ''}</span>
+                <div className="groups-container" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  {Object.values(groupedItems).map((group, gIdx) => {
+                    const isExpanded = expandedGroups.has(group.key);
+                    const allSelected = group.items.every(i => selectedItems.has(i.id));
+                    const someSelected = group.items.some(i => selectedItems.has(i.id));
+                    
+                    return (
+                      <div key={group.key} className="group-card" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--glass-border)', borderRadius: '12px', overflow: 'hidden' }}>
+                        {/* Group Header */}
+                        <div 
+                          className="group-header" 
+                          style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', background: isExpanded ? 'rgba(255,255,255,0.03)' : 'transparent', transition: 'all 0.2s' }}
+                          onClick={() => toggleGroup(group.key)}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                            {selectionMode && (
+                              <div onClick={(e) => { e.stopPropagation(); toggleGroupSelection(group.key, group.items); }} style={{ cursor: 'pointer' }}>
+                                {allSelected ? <CheckCircle2 size={20} color="var(--primary)" /> : (someSelected ? <Circle size={20} fill="var(--primary)" color="var(--primary)" fillOpacity={0.5} /> : <Circle size={20} color="var(--text-muted)" />)}
+                              </div>
+                            )}
+                            <div>
+                              <div style={{ fontWeight: 600, fontSize: '1rem', color: 'var(--text-main)' }}>{group.name}</div>
+                              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{group.items.length} adet ürün</div>
+                            </div>
+                          </div>
+                          <div style={{ background: 'rgba(59, 130, 246, 0.2)', color: '#93c5fd', padding: '0.25rem 0.75rem', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 600 }}>
+                            {group.items.length}
+                          </div>
+                        </div>
+
+                        {/* Group Items (Expanded) */}
+                        {isExpanded && (
+                          <div style={{ padding: '0.5rem 1rem 1rem 1rem', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '0.5rem' }}>
+                            {group.items.map((item, iIdx) => {
+                              const isSelected = selectedItems.has(item.id);
+                              return (
+                                <div 
+                                  key={item.id} 
+                                  className={`item-card animate-fade-in ${isSelected ? 'selected' : ''}`} 
+                                  style={{ 
+                                    animationDelay: `${Math.min(iIdx * 0.02, 0.5)}s`, 
+                                    border: isSelected ? '1px solid var(--primary)' : '1px solid rgba(255,255,255,0.05)',
+                                    background: isSelected ? 'rgba(59, 130, 246, 0.1)' : 'rgba(255,255,255,0.02)',
+                                    cursor: selectionMode ? 'pointer' : 'default',
+                                    padding: '0.75rem'
+                                  }}
+                                  onClick={() => { if (selectionMode) toggleSelection(item.id); }}
+                                >
+                                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}>
+                                    {selectionMode && (
+                                      <div style={{ marginTop: '0.1rem' }}>
+                                        {isSelected ? <CheckCircle2 size={16} color="var(--primary)" /> : <Circle size={16} color="var(--text-muted)" />}
+                                      </div>
+                                    )}
+                                    <div className="item-info" style={{ flex: 1 }}>
+                                      <span className="item-name" style={{ fontSize: '0.85rem' }}>{item.name} #{iIdx + 1}</span>
+                                      <span className="item-dims" style={{ fontSize: '0.75rem' }}>{item.w}x{item.h}x{item.d} cm {item.weight > 0 ? `| ${item.weight}kg` : ''}</span>
+                                    </div>
+                                    {!selectionMode && (
+                                      <button className="delete-btn" onClick={(e) => { e.stopPropagation(); handleRemoveItem(item.id); }}><Trash2 size={16} /></button>
+                                    )}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
                       </div>
-                      <button className="delete-btn" onClick={() => handleRemoveItem(item.id)}><Trash2 size={16} /></button>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -432,8 +726,11 @@ function App() {
               
               <hr className="divider" />
               
-              <h2><Play size={18} /> Animasyon Kontrolleri</h2>
-              <div className="anim-controls" style={{ display: 'flex', gap: '0.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                <h2 style={{ marginBottom: 0 }}><Play size={18} /> Animasyon Kontrolleri</h2>
+              </div>
+              
+              <div className="anim-controls" style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem' }}>
                 <button className="btn btn-secondary" onClick={stepBackward} disabled={animatingIndex <= 0}><SkipBack size={18} /></button>
                 <button className="btn" onClick={handlePlayPause} style={{ flex: 1 }}>
                   {isPlaying ? <Pause size={18} /> : <Play size={18} />} {isPlaying ? 'Durdur' : 'Oynat'}
@@ -441,20 +738,48 @@ function App() {
                 <button className="btn btn-secondary" onClick={stepForward} disabled={animatingIndex >= packResult.placed.length - 1}><SkipForward size={18} /></button>
               </div>
 
-              <div className="instruction-panel glass-panel" style={{ marginTop: '1.5rem', padding: '1rem', background: 'rgba(6, 182, 212, 0.1)', border: '1px solid rgba(6, 182, 212, 0.3)' }}>
-                <h3 style={{ fontSize: '1rem', marginBottom: '0.5rem', color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Info size={16} /> Talimat</h3>
+              <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
+                <button 
+                  className="btn btn-secondary" 
+                  style={{ flex: 1, padding: '0.4rem', fontSize: '0.8rem', background: playbackSpeed === 1 ? 'var(--primary)' : '', borderColor: playbackSpeed === 1 ? 'var(--primary)' : '' }}
+                  onClick={() => setPlaybackSpeed(1)}
+                >
+                  1x Hız
+                </button>
+                <button 
+                  className="btn btn-secondary" 
+                  style={{ flex: 1, padding: '0.4rem', fontSize: '0.8rem', background: playbackSpeed === 2.5 ? 'var(--primary)' : '', borderColor: playbackSpeed === 2.5 ? 'var(--primary)' : '' }}
+                  onClick={() => setPlaybackSpeed(2.5)}
+                >
+                  2.5x Hız <FastForward size={12} style={{ marginLeft: '4px', verticalAlign: 'middle' }} />
+                </button>
+                <button 
+                  className="btn btn-secondary" 
+                  style={{ flex: 1, padding: '0.4rem', fontSize: '0.8rem', background: playbackSpeed === 5 ? 'var(--primary)' : '', borderColor: playbackSpeed === 5 ? 'var(--primary)' : '' }}
+                  onClick={() => setPlaybackSpeed(5)}
+                >
+                  5x Hız <FastForward size={12} style={{ marginLeft: '4px', verticalAlign: 'middle' }} />
+                </button>
+              </div>
+
+              <div className="instruction-panel glass-panel" style={{ flexShrink: 0, padding: '1.25rem', background: 'rgba(6, 182, 212, 0.05)', border: '1px solid rgba(6, 182, 212, 0.2)', borderRadius: '12px' }}>
+                <h3 style={{ margin: '0 0 1rem 0', fontSize: '1rem', color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Info size={16} /> Yükleme Talimatı</h3>
                 {animatingIndex >= 0 && animatingIndex < packResult.placed.length ? (
-                  <div>
-                    <div style={{ fontWeight: 'bold', marginBottom: '0.5rem', fontSize: '1.1rem' }}>{animatingIndex + 1}. {packResult.placed[animatingIndex].name}</div>
-                    <div style={{ fontSize: '0.9rem', color: 'var(--text-main)', lineHeight: '1.5' }}>
-                      Şimdi bu paketi alın ve şekilde gösterilen konuma yerleştirin.
-                      <br/><br/>
-                      <strong style={{ color: 'var(--text-muted)' }}>Boyutlar:</strong> {packResult.placed[animatingIndex].w} x {packResult.placed[animatingIndex].h} x {packResult.placed[animatingIndex].d} cm
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    <div style={{ fontWeight: '600', fontSize: '0.95rem', color: 'white' }}>
+                      Adım {animatingIndex + 1}: <span style={{ color: 'var(--primary)' }}>{packResult.placed[animatingIndex].name}</span>
+                    </div>
+                    <div style={{ fontSize: '0.85rem', color: '#cbd5e1', lineHeight: '1.5' }}>
+                      Bu paketi alın ve animasyonda gösterilen <strong>hedef konuma</strong> yerleştirin.
+                    </div>
+                    <div style={{ background: 'rgba(255,255,255,0.05)', padding: '0.75rem 1rem', borderRadius: '8px', fontSize: '0.8rem', color: '#94a3b8', width: '100%' }}>
+                      <strong style={{ color: '#e2e8f0', display: 'block', marginBottom: '0.25rem' }}>Ürün Boyutları:</strong>
+                      {packResult.placed[animatingIndex].w} <span style={{ fontSize: '0.75rem' }}>G</span> &nbsp;x&nbsp; {packResult.placed[animatingIndex].h} <span style={{ fontSize: '0.75rem' }}>Y</span> &nbsp;x&nbsp; {packResult.placed[animatingIndex].d} <span style={{ fontSize: '0.75rem' }}>D</span> (cm)
                     </div>
                   </div>
                 ) : (
-                  <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-                    Yerleşim tamamlandı.
+                  <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: '1.5' }}>
+                    Animasyonu oynatarak ürünlerin tıra nasıl yükleneceğini adım adım görebilirsiniz.
                   </div>
                 )}
               </div>
@@ -469,6 +794,7 @@ function App() {
                   animatingIndex={animatingIndex} 
                   onAnimationComplete={handleAnimationComplete}
                   isPlaying={isPlaying}
+                  playbackSpeed={playbackSpeed}
                 />
               </div>
             </div>
@@ -534,12 +860,20 @@ function App() {
                   animatingIndex={animatingIndex} 
                   onAnimationComplete={() => {}}
                   isPlaying={false}
+                  playbackSpeed={1}
                 />
               </div>
             </div>
           </>
         )}
       </div>
+      {isScannerOpen && (
+        <BarcodeScanner 
+          onResult={handleScanResult} 
+          onClose={() => setIsScannerOpen(false)} 
+        />
+      )}
+
     </div>
   );
 }

@@ -1,18 +1,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
-  --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-  --glass-bg: rgba(255, 255, 255, 0.03);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-blur: blur(16px);
-  --primary: #6366f1;
-  --primary-hover: #4f46e5;
-  --accent: #06b6d4;
-  --text-main: #f8fafc;
+  --bg-gradient: #020617;
+  --glass-bg: linear-gradient(rgba(8, 17, 32, 0.78), rgba(8, 17, 32, 0.62));
+  --glass-border: rgba(59, 130, 246, 0.18);
+  --glass-blur: blur(24px);
+  --primary: #3b82f6;
+  --primary-hover: #2563eb;
+  --accent: #f97316;
+  --text-main: #e5eefb;
   --text-muted: #94a3b8;
-  --danger: #ef4444;
+  --danger: #f43f5e;
   --success: #10b981;
-  --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  --card-shadow: 0 14px 38px rgba(15, 23, 42, 0.34);
 }
 
 * {
@@ -23,7 +23,14 @@
 
 body {
   font-family: 'Inter', sans-serif;
-  background: var(--bg-gradient);
+  background-color: #020617;
+  background-image:
+    radial-gradient(rgba(255, 255, 255, 0.06) 0.6px, transparent 0.6px),
+    radial-gradient(rgba(255, 255, 255, 0.03) 0.7px, transparent 0.7px),
+    linear-gradient(rgba(148, 163, 184, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
+  background-position: 0 0, 18px 18px, 0 0, 0 0;
+  background-size: 24px 24px, 24px 24px, 44px 44px, 44px 44px;
   color: var(--text-main);
   min-height: 100vh;
   overflow-x: hidden;
@@ -37,6 +44,15 @@ body {
   border: 1px solid var(--glass-border);
   border-radius: 16px;
   box-shadow: var(--card-shadow);
+  position: relative;
+  overflow: hidden;
+}
+.glass-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 22%);
+  pointer-events: none;
 }
 
 /* Layout */
@@ -136,7 +152,7 @@ body {
 h1 {
   font-size: 1.5rem;
   font-weight: 700;
-  background: linear-gradient(to right, #818cf8, #c084fc);
+  background: linear-gradient(to right, #60a5fa, #f97316);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-bottom: 0.5rem;
@@ -205,11 +221,11 @@ input:focus, select:focus {
 .btn:hover {
   background: var(--primary-hover);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
 }
 
 .btn:active {
-  transform: translateY(0);
+  transform: translateY(1px);
 }
 
 .btn-secondary {
@@ -220,6 +236,18 @@ input:focus, select:focus {
 .btn-secondary:hover {
   background: rgba(255,255,255,0.1);
   box-shadow: none;
+}
+
+.btn-orange {
+  background: rgba(249, 115, 22, 0.15);
+  border: 1px solid rgba(249, 115, 22, 0.3);
+  color: #fdba74;
+}
+.btn-orange:hover {
+  background: rgba(249, 115, 22, 0.25);
+  border-color: rgba(249, 115, 22, 0.4);
+  color: #fed7aa;
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.15);
 }
 
 .btn-danger {
@@ -465,3 +493,20 @@ input:focus, select:focus {
   flex-direction: column;
   gap: 0.25rem;
 }
+
+/* Error Banner Overlay */
+.error-banner {
+  margin-top: 1rem;
+  background: rgba(153, 27, 27, 0.3); /* dark red background */
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 500;
+  box-shadow: inset 0 0 20px rgba(239, 68, 68, 0.05);
+  font-size: 0.95rem;
+}
+
