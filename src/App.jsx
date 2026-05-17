@@ -17,23 +17,14 @@ const PRODUCT_CATALOG = [
 ];
 
 function App() {
-  const [view, setView] = useState(() => {
-    const saved = localStorage.getItem('cv_view');
-    return saved || 'input';
-  });
-  const [items, setItems] = useState(() => {
-    const saved = localStorage.getItem('cv_items');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [view, setView] = useState('input');
+  const [items, setItems] = useState([]);
   const [containers, setContainers] = useState([]);
   const [containerType, setContainerType] = useState(() => {
     const saved = localStorage.getItem('cv_container');
     return saved || '';
   });
-  const [packResult, setPackResult] = useState(() => {
-    const saved = localStorage.getItem('cv_packResult');
-    return saved ? JSON.parse(saved) : null;
-  });
+  const [packResult, setPackResult] = useState(null);
   
   // Animation State
   const [animatingIndex, setAnimatingIndex] = useState(-1);
@@ -73,31 +64,16 @@ function App() {
 
   const fileInputRef = useRef(null);
 
-  // Persist State to LocalStorage
+  // Persist only driver info and container preference
   useEffect(() => {
     localStorage.setItem('cv_driver', JSON.stringify(driverInfo));
   }, [driverInfo]);
-  useEffect(() => {
-    localStorage.setItem('cv_items', JSON.stringify(items));
-  }, [items]);
 
   useEffect(() => {
     if (containerType) {
       localStorage.setItem('cv_container', containerType);
     }
   }, [containerType]);
-
-  useEffect(() => {
-    if (packResult) {
-      localStorage.setItem('cv_packResult', JSON.stringify(packResult));
-    } else {
-      localStorage.removeItem('cv_packResult');
-    }
-  }, [packResult]);
-
-  useEffect(() => {
-    localStorage.setItem('cv_view', view);
-  }, [view]);
 
   useEffect(() => {
     const fetchContainers = async () => {
@@ -437,7 +413,7 @@ function App() {
         <div className="nav-buttons" style={{ flex: 1, display: 'flex', justifyContent: 'center', gap: '0.5rem' }}>
           <button className={`nav-btn ${view === 'input' ? 'active' : ''}`} onClick={() => setView('input')}>1. Veri Girişi</button>
           <button className={`nav-btn ${view === 'optimization' ? 'active' : ''}`} disabled={!packResult} onClick={() => setView('optimization')}>2. Optimizasyon Sonucu</button>
-          <button className={`nav-btn ${view === 'operator' ? 'active' : ''}`} disabled={!packResult} onClick={() => setView('operator')}>3. Operatör Ekranı</button>
+          <button className={`nav-btn ${view === 'operator' ? 'active' : ''}`} disabled={!packResult} onClick={() => setView('operator')}>3. Yükleme Özeti</button>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem', width: 'auto', minWidth: '320px', justifyContent: 'flex-end' }}>
           <button 
@@ -578,9 +554,7 @@ function App() {
                 Planı Oluştur <ArrowRight size={18} />
               </button>
 
-              <button className="btn btn-secondary" onClick={exportJSON} disabled={items.length === 0} style={{ marginTop: '0.5rem', fontSize: '0.8rem', padding: '0.5rem' }}>
-                Geliştirici: JSON İndir (Backend Formatı)
-              </button>
+
             </div>
 
             <div className="main-view glass-panel" style={{ padding: '1.5rem', overflowY: 'auto' }}>
@@ -721,7 +695,7 @@ function App() {
               <button 
                 className="btn btn-secondary" 
                 style={{ marginTop: '1rem', width: '100%', borderColor: 'var(--accent)', color: 'var(--accent)' }}
-                onClick={() => generatePDF(packResult, activeContainer?.label || 'Konteyner', totalWeight)}
+                onClick={() => generatePDF(packResult, activeContainer?.label || 'Konteyner', totalWeight, driverInfo)}
               >
                 İrsaliye PDF İndir
               </button>
@@ -793,7 +767,7 @@ function App() {
                   style={{ width: '100%', background: 'linear-gradient(135deg, #16a34a, #15803d)', boxShadow: '0 4px 20px rgba(22,163,74,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', fontSize: '1rem', fontWeight: 700 }}
                   onClick={() => setView('operator')}
                 >
-                  <ClipboardList size={18} /> Operatör Ekranına Geç <ArrowRight size={16} />
+                  <ClipboardList size={18} /> Yükleme Ekranına Geç <ArrowRight size={16} />
                 </button>
               </div>
             </div>
@@ -816,13 +790,17 @@ function App() {
 
         {/* --- VIEW 3: OPERATOR TRACKING --- */}
         {view === 'operator' && packResult && (() => {
-          const totalM3 = packResult.placed.reduce((sum, item) => sum + (item.placedW * item.placedH * item.placedD) / 1_000_000, 0);
+          // Only count items that have been animated so far (loaded up to current step)
+          const loadedCount = Math.max(0, animatingIndex);
+          const loadedItems = packResult.placed.slice(0, loadedCount);
+
+          const totalM3 = loadedItems.reduce((sum, item) => sum + (item.placedW * item.placedH * item.placedD) / 1_000_000, 0);
           const containerM3 = (activeContainerDims.w * activeContainerDims.h * activeContainerDims.d) / 1_000_000;
           const volumePct = containerM3 > 0 ? ((totalM3 / containerM3) * 100).toFixed(1) : 0;
-          const placedWeight = packResult.placed.reduce((sum, item) => sum + (item.weight || 0), 0);
-          // Group placed items by name for summary
+          const placedWeight = loadedItems.reduce((sum, item) => sum + (item.weight || 0), 0);
+          // Group loaded items by name for summary
           const groupMap = {};
-          packResult.placed.forEach(item => {
+          loadedItems.forEach(item => {
             groupMap[item.name] = (groupMap[item.name] || 0) + 1;
           });
           return (
@@ -834,8 +812,10 @@ function App() {
                   <ClipboardList size={22} color="#93c5fd" />
                 </div>
                 <div>
-                  <h2 style={{ margin: 0, fontSize: '1.05rem' }}>Operatör Onay Listesi</h2>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.1rem' }}>Her ürünü yükledikçe onaylayın</div>
+                  <h2 style={{ margin: 0, fontSize: '1.05rem' }}>Yükleme Özeti</h2>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.1rem' }}>
+                    Adım {loadedCount} / {packResult.placed.length} — yüklenen ürünler
+                  </div>
                 </div>
               </div>
 
@@ -847,8 +827,8 @@ function App() {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem', marginBottom: '0.75rem' }}>
                   <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '10px', padding: '0.6rem 0.8rem' }}>
                     <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '0.2rem' }}>Yüklenen</div>
-                    <div style={{ fontWeight: 800, fontSize: '1.15rem', color: '#22c55e' }}>{packResult.placed.length}</div>
-                    <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>/ {packResult.placed.length + (packResult.unplaced?.length || 0)} ürün</div>
+                    <div style={{ fontWeight: 800, fontSize: '1.15rem', color: '#22c55e' }}>{loadedCount}</div>
+                    <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>/ {packResult.placed.length} ürün</div>
                   </div>
                   <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '10px', padding: '0.6rem 0.8rem' }}>
                     <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '0.2rem' }}>Hacim Kullanımı</div>
@@ -857,7 +837,7 @@ function App() {
                   </div>
                   <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '10px', padding: '0.6rem 0.8rem' }}>
                     <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '0.2rem' }}>Toplam Ağırlık</div>
-                    <div style={{ fontWeight: 800, fontSize: '1.15rem', color: '#f97316' }}>{placedWeight > 0 ? placedWeight : totalWeight}</div>
+                    <div style={{ fontWeight: 800, fontSize: '1.15rem', color: '#f97316' }}>{placedWeight > 0 ? placedWeight : '—'}</div>
                     <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>kg</div>
                   </div>
                   <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '10px', padding: '0.6rem 0.8rem' }}>
@@ -868,7 +848,9 @@ function App() {
                 </div>
                 {/* Product type breakdown */}
                 <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '0.65rem' }}>
-                  <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '0.4rem' }}>Ürün Dağılımı:</div>
+                  <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '0.4rem' }}>
+                    {loadedCount > 0 ? 'Yüklenen Ürün Dağılımı:' : 'Henüz ürün yüklenmedi'}
+                  </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
                     {Object.entries(groupMap).map(([name, count]) => (
                       <span key={name} style={{ fontSize: '0.68rem', background: 'rgba(96,165,250,0.12)', border: '1px solid rgba(96,165,250,0.2)', borderRadius: '999px', padding: '0.15rem 0.55rem', color: '#93c5fd' }}>
@@ -877,117 +859,6 @@ function App() {
                     ))}
                   </div>
                 </div>
-              </div>
-              {/* Progress */}
-              <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)', borderRadius: '14px', padding: '1rem', marginBottom: '1rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
-                  <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Yükleme İlerlemesi</span>
-                  <span style={{ fontWeight: 800, fontSize: '1.1rem', color: checkedItems.size === packResult.placed.length ? '#22c55e' : '#60a5fa' }}>
-                    {checkedItems.size} / {packResult.placed.length}
-                  </span>
-                </div>
-                <div className="progress-bar" style={{ height: '10px', borderRadius: '999px' }}>
-                  <div className="progress-fill" style={{ width: `${(checkedItems.size / packResult.placed.length) * 100}%`, background: checkedItems.size === packResult.placed.length ? 'linear-gradient(90deg,#22c55e,#16a34a)' : 'linear-gradient(90deg,#3b82f6,#f97316)', transition: 'width 0.4s ease' }}></div>
-                </div>
-                {checkedItems.size === packResult.placed.length && (
-                  <div style={{ marginTop: '0.6rem', fontSize: '0.82rem', color: '#22c55e', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                    <CheckCircle2 size={14} /> Tüm ürünler yüklendi! Son onayı verebilirsiniz.
-                  </div>
-                )}
-              </div>
-
-              {/* Toolbar */}
-              <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                <button
-                  className="btn btn-secondary"
-                  style={{ flex: 1, padding: '0.45rem', fontSize: '0.78rem' }}
-                  onClick={handleToggleAllChecks}
-                >
-                  {checkedItems.size === packResult.placed.length ? 'Tümünü Kaldır' : 'Tümünü Onayla'}
-                </button>
-              </div>
-
-              {/* Checklist */}
-              <div className="checklist-container" style={{ flex: 1 }}>
-                {packResult.placed.map((item, idx) => (
-                  <div
-                    key={item.id + idx}
-                    onClick={() => toggleCheck(idx)}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: '0.85rem',
-                      padding: '0.75rem 0.9rem',
-                      borderRadius: '12px',
-                      marginBottom: '0.45rem',
-                      cursor: 'pointer',
-                      border: checkedItems.has(idx)
-                        ? '1px solid rgba(34,197,94,0.3)'
-                        : animatingIndex === idx
-                        ? '1px solid rgba(96,165,250,0.4)'
-                        : '1px solid var(--glass-border)',
-                      background: checkedItems.has(idx)
-                        ? 'rgba(34,197,94,0.07)'
-                        : animatingIndex === idx
-                        ? 'rgba(59,130,246,0.09)'
-                        : 'rgba(255,255,255,0.02)',
-                      transition: 'all 0.2s',
-                    }}
-                  >
-                    <div style={{ flexShrink: 0 }}>
-                      {checkedItems.has(idx)
-                        ? <CheckCircle2 size={22} color="#22c55e" />
-                        : <Circle size={22} color="var(--text-muted)" />}
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{
-                        fontWeight: 600, fontSize: '0.9rem',
-                        color: checkedItems.has(idx) ? 'var(--text-muted)' : 'var(--text-main)',
-                        textDecoration: checkedItems.has(idx) ? 'line-through' : 'none',
-                        whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
-                      }}>
-                        <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem', marginRight: '0.35rem' }}>#{idx + 1}</span>
-                        {item.name}
-                      </div>
-                      <div style={{ fontSize: '0.73rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
-                        {item.w}×{item.h}×{item.d} cm &nbsp;|&nbsp; Konum: ({Math.round(item.x)}, {Math.round(item.y)}, {Math.round(item.z)})
-                      </div>
-                    </div>
-                    {checkedItems.has(idx) && (
-                      <span style={{ fontSize: '0.68rem', color: '#22c55e', background: 'rgba(34,197,94,0.12)', padding: '0.15rem 0.5rem', borderRadius: '999px', flexShrink: 0 }}>✓ Yüklendi</span>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {/* Final Confirm Button */}
-              <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--glass-border)' }}>
-                {shipmentConfirmed ? (
-                  <div style={{ textAlign: 'center', padding: '1rem', background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.3)', borderRadius: '14px' }}>
-                    <CheckCircle2 size={32} color="#22c55e" style={{ marginBottom: '0.5rem' }} />
-                    <div style={{ fontWeight: 700, color: '#22c55e', fontSize: '1rem' }}>Sevkiyat Onaylandı!</div>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>Yükleme tamamlandı ve kaydedildi.</div>
-                  </div>
-                ) : (
-                  <button
-                    className="btn"
-                    disabled={checkedItems.size < packResult.placed.length}
-                    style={{
-                      width: '100%', fontSize: '0.95rem', fontWeight: 700,
-                      background: checkedItems.size === packResult.placed.length
-                        ? 'linear-gradient(135deg,#16a34a,#15803d)'
-                        : 'rgba(255,255,255,0.05)',
-                      boxShadow: checkedItems.size === packResult.placed.length ? '0 4px 20px rgba(22,163,74,0.35)' : 'none',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
-                      opacity: checkedItems.size < packResult.placed.length ? 0.5 : 1,
-                      border: checkedItems.size === packResult.placed.length ? '1px solid rgba(34,197,94,0.4)' : '1px solid var(--glass-border)'
-                    }}
-                    onClick={() => setShowFinalConfirm(true)}
-                  >
-                    <ShieldCheck size={18} />
-                    {checkedItems.size < packResult.placed.length
-                      ? `Önce tüm ürünleri onaylayın (${packResult.placed.length - checkedItems.size} kaldı)`
-                      : 'Sevkiyatı Onayla ve Tamamla'}
-                  </button>
-                )}
               </div>
             </div>
 
@@ -1004,55 +875,6 @@ function App() {
                 />
               </div>
             </div>
-
-            {/* Final Confirmation Modal */}
-            {showFinalConfirm && (
-              <div style={{
-                position: 'fixed', inset: 0, zIndex: 200,
-                background: 'rgba(2,6,23,0.82)',
-                backdropFilter: 'blur(8px)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center'
-              }}>
-                <div style={{
-                  background: 'linear-gradient(180deg,rgba(8,17,32,0.98),rgba(3,8,20,0.96))',
-                  border: '1px solid rgba(34,197,94,0.3)',
-                  borderRadius: '24px',
-                  padding: '2.5rem',
-                  width: 'min(480px, 90vw)',
-                  boxShadow: '0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(34,197,94,0.1)',
-                  textAlign: 'center'
-                }}>
-                  <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: 'rgba(34,197,94,0.15)', border: '2px solid rgba(34,197,94,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem' }}>
-                    <ShieldCheck size={36} color="#22c55e" />
-                  </div>
-                  <h2 style={{ margin: '0 0 0.75rem', fontSize: '1.4rem', color: 'white' }}>Son Onay</h2>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: 1.6, marginBottom: '0.5rem' }}>
-                    <strong style={{ color: 'var(--text-main)' }}>{packResult.placed.length} ürün</strong> yüklendiğini ve doğrulandığını onaylıyor musunuz?
-                  </p>
-                  {driverInfo.name && (
-                    <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '10px', padding: '0.75rem 1rem', marginBottom: '1.5rem', fontSize: '0.85rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-                      <User size={14} /> Şoför: <strong style={{ color: 'var(--text-main)' }}>{driverInfo.name}</strong>
-                    </div>
-                  )}
-                  <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem' }}>
-                    <button
-                      className="btn btn-secondary"
-                      style={{ flex: 1 }}
-                      onClick={() => setShowFinalConfirm(false)}
-                    >
-                      <X size={16} /> İptal
-                    </button>
-                    <button
-                      className="btn"
-                      style={{ flex: 2, background: 'linear-gradient(135deg,#16a34a,#15803d)', boxShadow: '0 8px 24px rgba(22,163,74,0.4)', fontWeight: 700, fontSize: '1rem' }}
-                      onClick={() => { setShipmentConfirmed(true); setShowFinalConfirm(false); }}
-                    >
-                      <ShieldCheck size={18} /> Evet, Onayla
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
           </>
           );
         })()}
