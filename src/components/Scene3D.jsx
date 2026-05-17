@@ -113,8 +113,9 @@ const AnimatedBox = ({ item, isPlaced, target, initial, isAnimating, isPlaying, 
   useFrame((state, delta) => {
     if (!isAnimating || !isPlaying || !meshRef.current) return;
     
-    const safeDelta = Math.min(delta, 0.1); 
-    const step = 4 * safeDelta * playbackSpeed; 
+    const safeDelta = Math.min(delta, 0.05);
+    // Clamp step to [0, 0.99] — a lerp factor > 1 overshoots and causes oscillation
+    const step = Math.min(4 * safeDelta * playbackSpeed, 0.99);
     
     meshRef.current.position.x = THREE.MathUtils.lerp(meshRef.current.position.x, target[0], step);
     meshRef.current.position.y = THREE.MathUtils.lerp(meshRef.current.position.y, target[1], step);
@@ -126,7 +127,7 @@ const AnimatedBox = ({ item, isPlaced, target, initial, isAnimating, isPlaying, 
       Math.pow(target[2] - meshRef.current.position.z, 2)
     );
     
-    if (dist < 0.05 || (playbackSpeed > 2 && dist < 0.2)) {
+    if (dist < 0.08) {
       meshRef.current.position.set(...target);
       setPosition(target);
       if (!completedRef.current) {
