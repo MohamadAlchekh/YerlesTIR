@@ -1,24 +1,174 @@
 # YerlesTIR
 
-YerlesTIR, konteyner ve yuk yerlesimini optimize etmeye odaklanan React + Vite tabanli bir uygulamadir.
+Akıllı Konteyner Yükleme ve Optimizasyon Platformu
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+YerlesTIR, konteyner ve tır yükleme süreçlerini dijitalleştiren; ürünlerin boyut, ağırlık ve adet bilgilerine göre en uygun yerleşim planını oluşturan Endüstri 4.0 odaklı lojistik operasyon platformudur.
 
-Currently, two official plugins are available:
+Sistem yalnızca matematiksel optimizasyon sunmaz; aynı zamanda 3D görselleştirme, operasyonel yönlendirme, QR/barkod entegrasyonu ve veri destekli yükleme süreçleri ile saha operasyonlarını dijital hale getirir.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## Problem
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Lojistik operasyonlarında yükleme planlamaları çoğu zaman manuel şekilde gerçekleştirilmektedir. Bu durum:
 
-## Expanding the ESLint configuration
+* Verimsiz konteyner kullanımı
+* Boş hacim kaybı
+* Operasyonel hata riski
+* Dengesiz yük dağılımı
+* Zaman kaybı
+* Yüksek operasyon maliyeti
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+gibi problemlere neden olmaktadır.
 
-## 👥 Contributors
+YerlesTIR bu süreci optimize ederek daha verimli, daha görünür ve daha hızlı operasyon yönetimi sağlamayı hedefler.
 
-*   **Orhan Emre Bağdu** - *Software Architect & Integration Specialist*
-    *   Designed the core system architecture and structured the project workflow processes.
-    *   Integrated and configured **Puq.ai** and **Diginova Novavision** into the project pipeline.
+---
+
+## Çözüm Yaklaşımı
+
+YerlesTIR, kullanıcıdan alınan ürün ve konteyner verilerini analiz ederek optimum yükleme planı oluşturan bir optimizasyon sistemi kullanır.
+
+Sistem:
+
+* Ürün boyutlarını analiz eder
+* Ağırlık dağılımını hesaplar
+* Konteyner hacmini optimize eder
+* Boş alan kullanımını azaltır
+* Ürün yönelimlerini değerlendirir
+* Yükleme sırasını belirler
+* 3D yerleşim simülasyonu oluşturur
+
+Tüm süreç gerçek zamanlı olarak görselleştirilir.
+
+---
+
+## Özellikler
+
+### 3D Konteyner Görselleştirme
+
+Three.js ve React Three Fiber altyapısıyla geliştirilen sistem sayesinde kullanıcılar:
+
+* Konteyneri 3 boyutlu görüntüleyebilir
+* Yerleşim sırasını takip edebilir
+* Farklı açılardan inceleme yapabilir
+* Yükleme sürecini animasyonlu şekilde izleyebilir
+
+### QR & Barkod Entegrasyonu
+
+html5-qrcode altyapısı sayesinde:
+
+* Kamera ile barkod okutma
+* Otomatik veri aktarımı
+* Hızlı ürün tanımlama
+* Manuel veri girişinin azaltılması
+
+sağlanmaktadır.
+
+### Operasyonel Optimizasyon
+
+* Boş hacim analizi
+* Dinamik yerleşim sistemi
+* Operasyonel görünürlük
+* Daha hızlı yükleme planlaması
+* Görsel saha yönlendirmesi
+
+---
+
+## Sistem Mimarisi
+
+```txt
+Kullanıcı Verisi
+↓
+Optimizasyon Algoritması
+↓
+Yerleşim Hesabı
+↓
+3D Görselleştirme
+↓
+Operasyonel Çıktılar
+```
+
+---
+
+## Teknolojiler
+
+### Frontend
+
+* React 19
+* Vite
+* JavaScript
+* Three.js
+* React Three Fiber
+* Drei
+* Lucide React
+
+### Backend
+
+* FastAPI
+* Python
+* Pydantic
+* Uvicorn
+
+### Ek Modüller
+
+* html5-qrcode
+* jsPDF
+* jspdf-autotable
+* UUID
+
+---
+
+## Gelecek Geliştirmeler
+
+Planlanan geliştirmeler:
+
+* AI destekli yerleşim önerileri
+* Kamera tabanlı yük doğrulama sistemi
+* IoT cihaz entegrasyonları
+* ERP bağlantıları
+* Depo yönetim sistemi entegrasyonu
+* Operasyonel risk analizi
+* Gerçek zamanlı veri takibi
+
+---
+
+## Ekip
+
+### [Mohamad Alchekh](https://github.com/MohamadAlchekh)
+
+`Backend Developer` • `Team Lead`
+
+YerlesTIR projesinin ürün vizyonunu ve temel sistem yapısını şekillendirmiştir. puq.ai ve NovaVision entegrasyon süreçlerinde aktif rol alarak backend mimarisi, AI workflow yapısı ve operasyonel karar mekanizmalarının geliştirilmesine katkı sağlamıştır.
+
+---
+
+### [Mehmet Sahaf Bayrakçı](https://github.com/Mehmetsahaf)
+
+`Operations Logic` • `System Design`
+
+Projenin operasyonel planlama mantığı, veri akışları ve sistem organizasyonu tarafında aktif rol almıştır. YerlesTIR’in temel fikir yapısının geliştirilmesi ve animasyon süreçlerinin desteklenmesi alanlarında katkı sağlamıştır.
+
+---
+
+### [Orhan Emre Bağdu](#)
+
+`Backend Developer` • `AI Integration`
+
+YerlesTIR’in backend ve AI entegrasyon süreçlerinde görev almıştır. puq.ai ve NovaVision altyapılarının sisteme entegrasyonu, operasyonel veri akışları ve backend süreçlerinin geliştirilmesine katkı sağlamıştır.
+
+---
+
+### [Merve Subaşı](https://github.com/githubmerve)
+
+`Frontend Developer` • `UI/UX Designer`
+
+Projenin frontend geliştirme süreçlerinde görev almış; kullanıcı arayüzü, veri görselleştirme ve kullanıcı deneyimi katmanlarının oluşturulmasına katkı sağlamıştır. Modern ve erişilebilir arayüz yapısının geliştirilmesinde aktif rol üstlenmiştir.
+
+---
+
+## Sonuç
+
+YerlesTIR, lojistik operasyonlarını yalnızca dijitalleştiren değil; aynı zamanda optimize eden, görselleştiren ve operasyonel görünürlük sağlayan modern bir Endüstri 4.0 çözümüdür.
+
+Proje; verimlilik, hız, kullanıcı deneyimi ve operasyonel yönetimi tek bir platform altında birleştirerek modern lojistik süreçlerine ölçeklenebilir bir yaklaşım sunmaktadır.
