@@ -1,0 +1,203 @@
+[2m08:51:18[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [2m[console.error] [22mError fetching containers: TypeError: Failed to fetch
+    at Object.getContainers (http://127.0.0.1:5174/src/api.js:6:27)
+    at fetchContainers (http://127.0.0.1:5174/src/App.jsx:117:28)
+    at http://127.0.0.1:5174/src/App.jsx:126:3
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:12657:13)
+    at runWithFiberInDEV (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:604:66)
+    at commitHookEffectListMount (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:6370:153)
+    at commitHookPassiveMountEffects (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:6405:55)
+    at commitPassiveMountOnFiber (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:7371:22)
+    at recursivelyTraversePassiveMountEffects (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:7359:5)
+    at commitPassiveMountOnFiber (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:7425:14)
+[2m08:51:18[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [2m[console.error] [22mFailed to load containers: TypeError: Failed to fetch
+    at Object.getContainers (http://127.0.0.1:5174/src/api.js:6:27)
+    at fetchContainers (http://127.0.0.1:5174/src/App.jsx:117:28)
+    at http://127.0.0.1:5174/src/App.jsx:126:3
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:12657:13)
+    at runWithFiberInDEV (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:604:66)
+    at commitHookEffectListMount (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:6370:153)
+    at commitHookPassiveMountEffects (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:6405:55)
+    at commitPassiveMountOnFiber (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:7371:22)
+    at recursivelyTraversePassiveMountEffects (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:7359:5)
+    at commitPassiveMountOnFiber (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:7425:14)
+[2m08:51:18[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [2m[console.error] [22mError fetching containers: TypeError: Failed to fetch
+    at Object.getContainers (http://127.0.0.1:5174/src/api.js:6:27)
+    at fetchContainers (http://127.0.0.1:5174/src/App.jsx:117:28)
+    at http://127.0.0.1:5174/src/App.jsx:126:3
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:12657:13)
+    at runWithFiberInDEV (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:604:66)
+    at commitHookEffectListMount (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:6370:153)
+    at commitHookPassiveMountEffects (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:6405:55)
+    at reconnectPassiveEffects (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:7454:6)
+    at recursivelyTraverseReconnectPassiveEffects (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:7441:5)
+    at reconnectPassiveEffects (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:7466:14)
+[2m08:51:18[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [2m[console.error] [22mFailed to load containers: TypeError: Failed to fetch
+    at Object.getContainers (http://127.0.0.1:5174/src/api.js:6:27)
+    at fetchContainers (http://127.0.0.1:5174/src/App.jsx:117:28)
+    at http://127.0.0.1:5174/src/App.jsx:126:3
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:12657:13)
+    at runWithFiberInDEV (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:604:66)
+    at commitHookEffectListMount (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:6370:153)
+    at commitHookPassiveMountEffects (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:6405:55)
+    at reconnectPassiveEffects (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:7454:6)
+    at recursivelyTraverseReconnectPassiveEffects (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:7441:5)
+    at reconnectPassiveEffects (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:7466:14)
+[2m08:51:20[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="linkedin" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m08:51:20[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="github" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m08:51:20[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="twitter" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m08:52:06[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="linkedin" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m08:52:06[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="github" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m08:52:06[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="twitter" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m08:52:37[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="linkedin" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m08:52:37[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="github" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m08:52:37[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="twitter" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m08:52:56[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="linkedin" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m08:52:56[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="github" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m08:52:56[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="twitter" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m08:53:05[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [2m[console.error] [22mError fetching containers: TypeError: Failed to fetch
+    at Object.getContainers (http://127.0.0.1:5174/src/api.js:6:27)
+    at fetchContainers (http://127.0.0.1:5174/src/App.jsx:117:28)
+    at http://127.0.0.1:5174/src/App.jsx:126:3
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:12657:13)
+    at runWithFiberInDEV (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:604:66)
+    at commitHookEffectListMount (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:6370:153)
+    at commitHookPassiveMountEffects (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:6405:55)
+    at commitPassiveMountOnFiber (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:7371:22)
+    at recursivelyTraversePassiveMountEffects (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:7359:5)
+    at commitPassiveMountOnFiber (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:7425:14)
+[2m08:53:05[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [2m[console.error] [22mFailed to load containers: TypeError: Failed to fetch
+    at Object.getContainers (http://127.0.0.1:5174/src/api.js:6:27)
+    at fetchContainers (http://127.0.0.1:5174/src/App.jsx:117:28)
+    at http://127.0.0.1:5174/src/App.jsx:126:3
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:12657:13)
+    at runWithFiberInDEV (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:604:66)
+    at commitHookEffectListMount (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:6370:153)
+    at commitHookPassiveMountEffects (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:6405:55)
+    at commitPassiveMountOnFiber (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:7371:22)
+    at recursivelyTraversePassiveMountEffects (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:7359:5)
+    at commitPassiveMountOnFiber (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:7425:14)
+[2m08:53:05[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [2m[console.error] [22mError fetching containers: TypeError: Failed to fetch
+    at Object.getContainers (http://127.0.0.1:5174/src/api.js:6:27)
+    at fetchContainers (http://127.0.0.1:5174/src/App.jsx:117:28)
+    at http://127.0.0.1:5174/src/App.jsx:126:3
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:12657:13)
+    at runWithFiberInDEV (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:604:66)
+    at commitHookEffectListMount (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:6370:153)
+    at commitHookPassiveMountEffects (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:6405:55)
+    at reconnectPassiveEffects (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:7454:6)
+    at recursivelyTraverseReconnectPassiveEffects (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:7441:5)
+    at reconnectPassiveEffects (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:7466:14)
+[2m08:53:05[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [2m[console.error] [22mFailed to load containers: TypeError: Failed to fetch
+    at Object.getContainers (http://127.0.0.1:5174/src/api.js:6:27)
+    at fetchContainers (http://127.0.0.1:5174/src/App.jsx:117:28)
+    at http://127.0.0.1:5174/src/App.jsx:126:3
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:12657:13)
+    at runWithFiberInDEV (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:604:66)
+    at commitHookEffectListMount (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:6370:153)
+    at commitHookPassiveMountEffects (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:6405:55)
+    at reconnectPassiveEffects (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:7454:6)
+    at recursivelyTraverseReconnectPassiveEffects (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:7441:5)
+    at reconnectPassiveEffects (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:7466:14)
+[2m08:53:50[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="linkedin" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m08:53:50[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="github" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m08:53:50[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="twitter" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m08:53:52[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="linkedin" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m08:53:52[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="github" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m08:53:52[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="twitter" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m08:53:58[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="linkedin" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m08:53:58[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="github" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m08:53:58[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="twitter" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m08:54:05[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="linkedin" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m08:54:05[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="github" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m08:54:05[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="twitter" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m08:54:38[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="linkedin" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m08:54:39[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="github" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m08:54:39[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="twitter" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m08:54:39[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="linkedin" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m08:54:39[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="github" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m08:54:39[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="twitter" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m08:56:33[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="linkedin" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m08:56:33[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="github" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m08:56:33[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="twitter" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m08:57:16[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="linkedin" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m08:57:16[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="github" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m08:57:16[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="twitter" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m08:57:21[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="linkedin" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m08:57:21[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="github" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m08:57:21[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="twitter" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m09:05:46[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="linkedin" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m09:05:46[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="github" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m09:05:46[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="twitter" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m09:06:42[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="linkedin" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m09:06:42[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="github" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m09:06:42[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="twitter" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m09:09:23[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="linkedin" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m09:09:23[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="github" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m09:09:23[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="twitter" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m09:10:09[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="linkedin" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m09:10:09[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="github" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m09:10:09[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="twitter" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m09:12:25[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="linkedin" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m09:12:25[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="github" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m09:12:25[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="twitter" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m09:13:15[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="linkedin" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m09:13:15[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="github" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m09:13:15[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="twitter" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m09:16:29[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="linkedin" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m09:16:29[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="github" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m09:16:29[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m<i data-lucide="twitter" class="h-5 w-5"></i> icon name was not found in the provided icons object.
+[2m09:17:28[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [2m[console.error] [22mError fetching containers: TypeError: Failed to fetch
+    at Object.getContainers (http://127.0.0.1:5174/src/api.js:6:27)
+    at fetchContainers (http://127.0.0.1:5174/src/App.jsx:117:28)
+    at http://127.0.0.1:5174/src/App.jsx:126:3
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:12657:13)
+    at runWithFiberInDEV (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:604:66)
+    at commitHookEffectListMount (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:6370:153)
+    at commitHookPassiveMountEffects (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:6405:55)
+    at commitPassiveMountOnFiber (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:7371:22)
+    at recursivelyTraversePassiveMountEffects (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:7359:5)
+    at commitPassiveMountOnFiber (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:7425:14)
+[2m09:17:28[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [2m[console.error] [22mFailed to load containers: TypeError: Failed to fetch
+    at Object.getContainers (http://127.0.0.1:5174/src/api.js:6:27)
+    at fetchContainers (http://127.0.0.1:5174/src/App.jsx:117:28)
+    at http://127.0.0.1:5174/src/App.jsx:126:3
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:12657:13)
+    at runWithFiberInDEV (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:604:66)
+    at commitHookEffectListMount (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:6370:153)
+    at commitHookPassiveMountEffects (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:6405:55)
+    at commitPassiveMountOnFiber (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:7371:22)
+    at recursivelyTraversePassiveMountEffects (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:7359:5)
+    at commitPassiveMountOnFiber (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:7425:14)
+[2m09:17:28[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [2m[console.error] [22mError fetching containers: TypeError: Failed to fetch
+    at Object.getContainers (http://127.0.0.1:5174/src/api.js:6:27)
+    at fetchContainers (http://127.0.0.1:5174/src/App.jsx:117:28)
+    at http://127.0.0.1:5174/src/App.jsx:126:3
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:12657:13)
+    at runWithFiberInDEV (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:604:66)
+    at commitHookEffectListMount (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:6370:153)
+    at commitHookPassiveMountEffects (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:6405:55)
+    at reconnectPassiveEffects (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:7454:6)
+    at recursivelyTraverseReconnectPassiveEffects (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:7441:5)
+    at reconnectPassiveEffects (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:7466:14)
+[2m09:17:28[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [2m[console.error] [22mFailed to load containers: TypeError: Failed to fetch
+    at Object.getContainers (http://127.0.0.1:5174/src/api.js:6:27)
+    at fetchContainers (http://127.0.0.1:5174/src/App.jsx:117:28)
+    at http://127.0.0.1:5174/src/App.jsx:126:3
+    at Object.react_stack_bottom_frame (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:12657:13)
+    at runWithFiberInDEV (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:604:66)
+    at commitHookEffectListMount (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:6370:153)
+    at commitHookPassiveMountEffects (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:6405:55)
+    at reconnectPassiveEffects (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:7454:6)
+    at recursivelyTraverseReconnectPassiveEffects (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:7441:5)
+    at reconnectPassiveEffects (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:7466:14)
+[2m09:18:35[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [2m[console.error] [22mError optimizing packing: TypeError: Failed to fetch
+    at Object.optimize (http://127.0.0.1:5174/src/api.js:19:27)
+    at handlePack (http://127.0.0.1:5174/src/App.jsx:239:31)
+    at executeDispatch (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:8894:5)
+    at runWithFiberInDEV (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:604:66)
+    at processDispatchQueue (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:8920:27)
+    at http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:9207:5
+    at batchedUpdates$1 (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:1797:12)
+    at dispatchEventForPluginEventSystem (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:8993:4)
+    at dispatchEvent (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:11072:29)
+    at dispatchDiscreteEvent (http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=8eea4258:11054:56)
