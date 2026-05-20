@@ -151,7 +151,7 @@ Projenin operasyonel planlama mantığı, veri akışları ve sistem organizasyo
 
 ---
 
-### [Orhan Emre Bağdu](https://github.com/Rankzz14))
+### [Orhan Emre Bağdu](https://github.com/Rankzz14)
 
 `Backend Developer` • `AI Integration`
 
